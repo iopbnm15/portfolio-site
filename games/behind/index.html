@@ -1,0 +1,1149 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>背後</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;900&display=swap">
+<style>
+/* 版面：整個視窗是 3D 畫面，開場／結束畫面疊在上面。刻意只有深色一種樣子。 */
+:root{
+  --void:#000;
+  --bg:#050505;
+  --fg:#d6d1c4;
+  --dim:#7f7a6e;
+  --exit:#7fd08a;
+  --alarm:#a8281e;
+  --veil:rgba(4,4,4,.88);
+  --paper:#d4cab1;
+  --ink:#2a2219;
+  --redink:#8f2418;
+  --font-display:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --font-body:"Noto Serif TC","PingFang TC","Microsoft JhengHei",serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font-body);overflow:hidden}
+#stage{position:fixed;inset:0;background:var(--void)}
+canvas{display:block;width:100%;height:100%;cursor:crosshair}
+.hint{position:absolute;left:0;right:0;bottom:calc(5% + env(safe-area-inset-bottom,0px));text-align:center;font-size:clamp(12px,1.5vw,15px);color:var(--dim);transition:opacity 2s;pointer-events:none;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2vh,22px);background:var(--veil);text-align:center;padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overflow:auto}
+.screen h1{margin:0;font-family:var(--font-display);font-weight:900;font-size:clamp(56px,13vw,150px);line-height:1;letter-spacing:.3em;margin-right:-.3em;color:var(--fg)}
+.screen h2{margin:0;font-family:var(--font-display);font-weight:900;font-size:clamp(32px,6vw,64px);letter-spacing:.15em;text-wrap:balance}
+.screen p{margin:0;max-width:30em;line-height:1.95;font-size:clamp(13px,1.7vw,16px)}
+.screen .dim{color:var(--dim)}
+.screen .stat{font-size:clamp(18px,2.6vw,26px);letter-spacing:.1em;font-variant-numeric:tabular-nums}
+.keys{display:flex;flex-wrap:wrap;justify-content:center;gap:.4em 1.4em;font-size:clamp(12px,1.4vw,14px);color:var(--dim)}
+.keys kbd{font-family:inherit;color:var(--fg);border:1px solid var(--dim);padding:0 .4em;margin-right:.3em}
+button{font-family:var(--font-display);font-weight:900;font-size:clamp(18px,2.4vw,24px);letter-spacing:.4em;padding:.35em 1.6em .35em 2em;background:transparent;color:var(--fg);border:1px solid var(--fg);cursor:pointer}
+button:hover:not(:disabled){background:var(--fg);color:var(--bg)}
+button:disabled{opacity:.4;cursor:wait}
+button:focus-visible{outline:2px solid var(--exit);outline-offset:4px}
+.toast{position:absolute;left:0;right:0;top:14%;text-align:center;font-size:clamp(14px,1.8vw,18px);letter-spacing:.06em;color:var(--fg);text-shadow:0 0 8px #000;transition:opacity 1.2s;pointer-events:none;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+/* 紙條＋地圖：疊在畫面上，後面的 3D 畫面和雜訊還看得到 */
+#paper{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.4);padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overflow:auto}
+.sheet{display:flex;flex-wrap:wrap;gap:18px 28px;align-items:flex-start;justify-content:center;max-width:920px;margin:auto;padding:clamp(14px,3vw,30px);background-color:var(--paper);background-image:radial-gradient(ellipse at 20% 15%,rgba(255,250,235,.35),transparent 55%),radial-gradient(ellipse at 85% 90%,rgba(90,70,40,.22),transparent 60%);color:var(--ink);box-shadow:0 12px 50px rgba(0,0,0,.85);transform:rotate(-.5deg)}
+#mapCv{width:min(100%,58vh,440px);height:auto;aspect-ratio:1;cursor:default}
+.note{flex:1 1 240px;max-width:330px;display:flex;flex-direction:column;gap:14px}
+.note p{margin:0;font-size:15px;line-height:1.9;white-space:pre-line}
+.note .count{font-weight:900;letter-spacing:.1em;color:var(--redink)}
+.note button{align-self:flex-start;font-size:17px;letter-spacing:.3em;color:var(--ink);border-color:var(--ink)}
+.note button:hover{background:var(--ink);color:var(--paper)}
+/* 手機觸控：左下浮動搖桿、右邊拖曳轉頭、右上地圖鈕 */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+canvas#view{touch-action:none}
+button{touch-action:manipulation}
+.k-touch{display:none}
+body.touch .k-touch{display:flex}
+body.touch .k-desk{display:none}
+#stickZone{position:absolute;left:0;bottom:0;width:45%;height:65%;touch-action:none}
+#stickBase{position:absolute;left:calc(84px + env(safe-area-inset-left,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));width:112px;height:112px;margin:-56px 0 0 -56px;border-radius:50%;border:1px solid rgba(214,209,196,.28);background:rgba(214,209,196,.05);pointer-events:none;transform:translateY(50%)}
+#stickBase.on{bottom:auto;transform:none;border-color:rgba(214,209,196,.5)}
+#knob{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(214,209,196,.22);border:1px solid rgba(214,209,196,.5)}
+#mapBtn{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));min-width:64px;min-height:48px;padding:0 .9em 0 1.2em;font-size:16px;letter-spacing:.2em;background:rgba(5,5,5,.5);border-color:rgba(214,209,196,.5)}
+/* 手機橫拿（矮螢幕）：地圖放大，紙條文字自己捲動，按鈕固定看得到 */
+@media (max-height:520px){
+  #paper{padding-block:8px}
+  .sheet{flex-wrap:nowrap;gap:16px;padding:12px 14px;max-height:calc(100dvh - 16px);transform:none}
+  #mapCv{width:min(calc(100dvh - 40px),46vw)}
+  .note{max-height:calc(100dvh - 40px);gap:8px}
+  #noteText{overflow:auto;flex:1 1 auto;min-height:0;font-size:13px;line-height:1.7}
+  .note button{flex:none}
+}
+@media (prefers-reduced-motion:reduce){.hint,.toast{transition:none}.sheet{transform:none}}
+</style>
+
+<div id="stage">
+  <canvas id="view" aria-label="遊戲畫面"></canvas>
+  <div class="hint" id="hint" hidden>W 前進・S 倒退（很慢）・A／D 側移・滑鼠或 ←／→ 轉身・M 看地圖（看地圖時牠會動）・點畫面鎖定滑鼠</div>
+  <div class="toast" id="toast" hidden></div>
+  <div id="touchUI" hidden>
+    <div id="stickZone" aria-label="移動搖桿"><div id="stickBase"><div id="knob"></div></div></div>
+    <button id="mapBtn">地圖</button>
+  </div>
+
+  <section id="paper" hidden aria-label="紙條與地圖">
+    <div class="sheet">
+      <canvas id="mapCv" width="434" height="434" aria-label="撕成四塊的地圖"></canvas>
+      <div class="note">
+        <p id="noteText"></p>
+        <p class="count" id="fuseCount"></p>
+        <button id="noteOk">收好</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="title">
+    <h1>背後</h1>
+    <p>你在一座沒有燈的設施裡。出口的門沒有電，<br>得先找回三個保險絲。<br>有東西跟著你。牠在你視線裡的時候不會動，<br>你一轉開，牠就會靠近。</p>
+    <p class="dim">聽你的心跳：牠在動，心就會跳；心跳停了，代表你正看著牠。心跳越快、畫面雜訊越重，牠越近。建議戴耳機。</p>
+    <div class="keys k-touch">
+      <span><kbd>左下拖曳</kbd>移動</span><span><kbd>右邊拖曳</kbd>轉頭</span><span><kbd>地圖</kbd>右上角</span><span>建議橫著拿</span>
+    </div>
+    <div class="keys k-desk">
+      <span><kbd>W</kbd>前進</span><span><kbd>S</kbd>倒退</span><span><kbd>A</kbd><kbd>D</kbd>側移</span><span><kbd>滑鼠</kbd>或<kbd>←</kbd><kbd>→</kbd>轉身</span><span><kbd>M</kbd>地圖</span>
+    </div>
+    <button id="start" disabled>載入中</button>
+  </section>
+
+  <section class="screen" id="lose" hidden>
+    <h2>牠碰到你了</h2>
+    <p class="stat" id="loseStat"></p>
+    <p class="dim">出口還在某處。</p>
+    <button id="retry1">再一次</button>
+  </section>
+
+  <section class="screen" id="win" hidden>
+    <h2 style="color:var(--exit)">你出去了</h2>
+    <p class="stat" id="winStat"></p>
+    <p class="dim">牠還在裡面。</p>
+    <button id="retry2">再一次</button>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+const S = 2.4, WALL_H = 3.0, EYE = 1.6, N = 31;   // 一格 2.4 公尺，15×15 格迷宮
+const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const angNorm = a => { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; };
+const rand = Math.random;
+const $ = id => document.getElementById(id);
+// 語言跟著作品集網站（網址 ?lang=en 或網站記住的設定）
+let langSaved = null;
+try { langSaved = localStorage.getItem('lang'); } catch (e) {}
+const EN = (new URLSearchParams(location.search).get('lang') || langSaved) === 'en';
+const L = (zh, en) => EN ? en : zh;
+if (EN) {
+  document.documentElement.lang = 'en';
+  document.title = 'BEHIND';
+  const set = (sel, html) => { document.querySelector(sel).innerHTML = html; };
+  $('view').setAttribute('aria-label', 'Game view');
+  $('stickZone').setAttribute('aria-label', 'Movement stick');
+  $('paper').setAttribute('aria-label', 'Note and map');
+  $('mapCv').setAttribute('aria-label', 'Map torn into four pieces');
+  $('hint').textContent = 'W forward · S back (slow) · A/D strafe · Mouse or ←/→ turn · M map (it moves while you read) · Click to lock the mouse';
+  $('mapBtn').textContent = 'Map';
+  set('#title h1', 'BEHIND');
+  set('#title p:not(.dim)', "You're inside a facility with no lights. The exit door has no power until you recover three fuses.<br>Something is following you. It freezes while it's in your sight.<br>The moment you look away, it closes in.");
+  set('#title p.dim', "Listen to your heart: it beats while the creature moves and stops when you're looking at it. The faster the beat and the heavier the static, the closer it is. Headphones recommended.");
+  set('.keys.k-touch', '<span><kbd>Drag lower left</kbd>Move</span><span><kbd>Drag right side</kbd>Look</span><span><kbd>Map</kbd>Upper right</span><span>Landscape recommended</span>');
+  set('.keys.k-desk', '<span><kbd>W</kbd>Forward</span><span><kbd>S</kbd>Back</span><span><kbd>A</kbd><kbd>D</kbd>Strafe</span><span><kbd>Mouse</kbd>or<kbd>←</kbd><kbd>→</kbd>Turn</span><span><kbd>M</kbd>Map</span>');
+  $('start').textContent = 'Loading';
+  set('#lose h2', 'It touched you');
+  set('#lose p.dim', 'The exit is still out there.');
+  set('#win h2', 'You got out');
+  set('#win p.dim', "It's still in there.");
+  $('retry1').textContent = $('retry2').textContent = 'Try again';
+}
+const cv = $('view'), stage = $('stage');
+const TOUCH = matchMedia('(pointer: coarse)').matches;   // 手機、平板：換成觸控操作，畫質也降一點
+if (TOUCH) {
+  document.body.classList.add('touch');
+  $('hint').textContent = L('左下拖曳移動・右邊拖曳轉頭・右上「地圖」（看地圖時牠會動）・建議橫著拿', 'Drag lower left to move · Drag right side to look · Map button, upper right (it moves while you read) · Landscape recommended');
+}
+
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: !TOUCH }); }
+catch (e) { $('start').textContent = L('這個瀏覽器不支援 WebGL', 'This browser does not support WebGL'); return; }
+renderer.setPixelRatio(Math.min(devicePixelRatio, TOUCH ? 1 : 1.5));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+// ---------- 程序生成材質 ----------
+function fbm(size, f0, oct) {
+  const out = new Float32Array(size * size);
+  let amp = 1, tot = 0;
+  for (let o = 0; o < oct; o++) {
+    const f = f0 << o, lat = new Float32Array(f * f);
+    for (let i = 0; i < lat.length; i++) lat[i] = rand();
+    for (let y = 0; y < size; y++) {
+      const fy = y / size * f, y0 = fy | 0, ty = fy - y0, sy = ty * ty * (3 - 2 * ty), r0 = y0 * f, r1 = ((y0 + 1) % f) * f;
+      for (let x = 0; x < size; x++) {
+        const fx = x / size * f, x0 = fx | 0, tx = fx - x0, sx = tx * tx * (3 - 2 * tx), x1 = (x0 + 1) % f;
+        const a = lat[r0 + x0], b = lat[r0 + x1], c = lat[r1 + x0], d = lat[r1 + x1];
+        out[y * size + x] += ((a + (b - a) * sx) * (1 - sy) + (c + (d - c) * sx) * sy) * amp;
+      }
+    }
+    tot += amp; amp *= 0.5;
+  }
+  for (let i = 0; i < out.length; i++) out[i] /= tot;
+  return out;
+}
+function canvasTex(size, fill, post, srgb) {
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const g = c.getContext('2d'), id = g.createImageData(size, size);
+  fill(id.data); g.putImageData(id, 0, 0); if (post) post(g, size);
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  if (srgb) t.encoding = THREE.sRGBEncoding;
+  return t;
+}
+function normalTex(h, size, k) {
+  return canvasTex(size, d => {
+    for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+      const l = h[y * size + (x - 1 + size) % size], r = h[y * size + (x + 1) % size];
+      const u = h[((y - 1 + size) % size) * size + x], dn = h[((y + 1) % size) * size + x];
+      const nx = (l - r) * k, ny = (dn - u) * k, len = Math.hypot(nx, ny, 1), i = (y * size + x) * 4;
+      d[i] = (nx / len * .5 + .5) * 255; d[i + 1] = (ny / len * .5 + .5) * 255; d[i + 2] = (1 / len * .5 + .5) * 255; d[i + 3] = 255;
+    }
+  });
+}
+function cracks(s, n, steps) {
+  const c = new Float32Array(s * s);
+  for (let k = 0; k < n; k++) {
+    let x = rand() * s, y = rand() * s, a = rand() * Math.PI * 2;
+    for (let i = 0; i < steps; i++) {
+      x += Math.cos(a); y += Math.sin(a); a += (rand() - .5) * .7;
+      c[((y | 0) % s + s) % s * s + ((x | 0) % s + s) % s] = 1;
+    }
+  }
+  return c;
+}
+
+// 牆：髒污的米白灰泥，直向接縫、水漬、裂痕、牆腳污垢
+function makeWall() {
+  const s = 512, base = fbm(s, 4, 6), det = fbm(s, 32, 3), dirt = new Float32Array(s * s), h = new Float32Array(s * s), cr = cracks(s, 7, 260);
+  for (let k = 0; k < 70; k++) {
+    const x0 = rand() * s | 0, w = 1 + (rand() * 7 | 0), len = s * (.1 + rand() * .7), str = .15 + rand() * .4;
+    for (let y = 0; y < len; y++) { const f = str * (1 - y / len); for (let dx = 0; dx < w; dx++) { const i = y * s + (x0 + dx) % s; dirt[i] += f * (.5 + .5 * det[i]); } }
+  }
+  for (let y = s * .68 | 0; y < s; y++) { const f = Math.pow((y - s * .68) / (s * .32), 1.4) * .8; for (let x = 0; x < s; x++) dirt[y * s + x] += f * (.4 + base[y * s + x]); }
+  const map = canvasTex(s, d => {
+    for (let y = 0; y < s; y++) for (let x = 0; x < s; x++) {
+      const i = y * s + x, v = base[i] * .6 + det[i] * .4;
+      const seam = (x % 170 < 2) ? 1 : 0;
+      const dd = Math.min(1, dirt[i]);
+      let r = 170 + (v - .5) * 80, g = 162 + (v - .5) * 76, b = 144 + (v - .5) * 70;
+      r = r * (1 - dd * .78) + 52 * dd * .78; g = g * (1 - dd * .78) + 40 * dd * .78; b = b * (1 - dd * .78) + 27 * dd * .78;
+      const m = (seam ? .5 : 1) * (cr[i] ? .62 : 1);
+      d[i * 4] = r * m; d[i * 4 + 1] = g * m; d[i * 4 + 2] = b * m; d[i * 4 + 3] = 255;
+      h[i] = v * .7 + det[i] * .3 - seam * .6 - cr[i] * .9;
+    }
+  }, null, true);
+  return { map, normal: normalTex(h, s, 3.5) };
+}
+// 地：深色水泥，有積水（積水處比較亮滑）
+function makeFloor() {
+  const s = 512, base = fbm(s, 4, 6), det = fbm(s, 48, 3), pud = fbm(s, 2, 4), h = new Float32Array(s * s), cr = cracks(s, 5, 200);
+  const wet = new Float32Array(s * s);
+  for (let i = 0; i < s * s; i++) { const t = clamp((pud[i] - .56) / .07, 0, 1); wet[i] = t * t * (3 - 2 * t); }
+  const map = canvasTex(s, d => {
+    for (let i = 0; i < s * s; i++) {
+      const v = base[i] * .6 + det[i] * .4, m = (1 - wet[i] * .18) * (cr[i] ? .55 : 1);
+      d[i * 4] = (66 + (v - .5) * 60) * m; d[i * 4 + 1] = (62 + (v - .5) * 56) * m; d[i * 4 + 2] = (56 + (v - .5) * 50) * m; d[i * 4 + 3] = 255;
+      h[i] = (v * .6 + det[i] * .4) * (1 - wet[i]) - cr[i] * .8;
+    }
+  }, null, true);
+  const rough = canvasTex(s, d => {
+    for (let i = 0; i < s * s; i++) { const r = clamp(.92 - wet[i] * .8 + det[i] * .06, 0, 1) * 255; d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = r; d[i * 4 + 3] = 255; }
+  });
+  return { map, rough, normal: normalTex(h, s, 4) };
+}
+// 天花板：舊隔音板，格線和水漬
+function makeCeil() {
+  const s = 256, base = fbm(s, 4, 5), st = fbm(s, 3, 3), h = new Float32Array(s * s);
+  const map = canvasTex(s, d => {
+    for (let y = 0; y < s; y++) for (let x = 0; x < s; x++) {
+      const i = y * s + x, grid = (x % 128 < 3 || y % 128 < 3) ? 1 : 0;
+      const stain = clamp((st[i] - .55) * 2.5, 0, 1) * .6, v = base[i];
+      let c = (96 + (v - .5) * 50) * (grid ? .4 : 1);
+      d[i * 4] = c * (1 - stain * .4) + 60 * stain * .4; d[i * 4 + 1] = c * (1 - stain * .45) + 46 * stain * .45; d[i * 4 + 2] = c * (1 - stain * .55) + 30 * stain * .55; d[i * 4 + 3] = 255;
+      h[i] = v - grid * .8;
+    }
+  }, null, true);
+  return { map, normal: normalTex(h, s, 3) };
+}
+// 出口門：生鏽的鐵門
+function makeDoor() {
+  const s = 256, rust = fbm(s, 6, 5), h = new Float32Array(s * s);
+  const map = canvasTex(s, d => {
+    for (let y = 0; y < s; y++) for (let x = 0; x < s; x++) {
+      const i = y * s + x, r = clamp((rust[i] - .5) * 5, 0, 1), frame = (x < 30 || x > 226 || y < 40) ? 1 : 0, seam = Math.abs(x - 128) < 2 ? 1 : 0;
+      let cr = 40 * (1 - r) + 96 * r, cg = 50 * (1 - r) + 52 * r, cb = 45 * (1 - r) + 28 * r;
+      if (frame) { cr *= .6; cg *= .6; cb *= .6; }
+      if (seam) { cr *= .3; cg *= .3; cb *= .3; }
+      d[i * 4] = cr; d[i * 4 + 1] = cg; d[i * 4 + 2] = cb; d[i * 4 + 3] = 255;
+      h[i] = rust[i] * (1 - frame * .3) - seam;
+    }
+  }, (g) => { g.fillStyle = '#8b8a84'; g.fillRect(108, 150, 8, 26); g.fillRect(140, 150, 8, 26); }, true);
+  return { map, normal: normalTex(h, s, 4) };
+}
+
+// 牆上的笑臉塗鴉：噴漆或粉筆，邊緣有噴點、底下有流痕
+const GRAFFITI_INK = ['#6e1410', '#6e1410', '#141210', 'rgba(214,206,190,.85)'];
+function makeGraffiti(variant, ink) {
+  const s = 256, c = document.createElement('canvas'); c.width = c.height = s;
+  const g = c.getContext('2d');
+  g.strokeStyle = g.fillStyle = ink; g.lineCap = g.lineJoin = 'round';
+  g.shadowColor = ink; g.shadowBlur = 5;
+  const wob = (k = 4) => (rand() - .5) * k;
+  const ring = (x, y, r, lw) => {   // 手畫的圈，頭尾不完全接上
+    g.lineWidth = lw; g.beginPath();
+    const a0 = rand() * 6, n = 28;
+    for (let i = 0; i <= n; i++) { const a = a0 + i / n * Math.PI * 2.08, rr = r + wob(r * .08); g[i ? 'lineTo' : 'moveTo'](x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
+    g.stroke();
+  };
+  const grin = (x, y, w, h, lw, teeth) => {
+    g.lineWidth = lw; g.beginPath();
+    for (let i = 0; i <= 20; i++) { const t = i / 20, a = Math.PI * (.1 + .8 * t); g[i ? 'lineTo' : 'moveTo'](x - Math.cos(a) * w + wob(), y + Math.sin(a) * h + wob()); }
+    g.stroke();
+    if (teeth) {
+      g.beginPath(); g.moveTo(x - w * .95, y + h * .3); g.quadraticCurveTo(x, y + h * .55, x + w * .95, y + h * .3); g.lineWidth = lw * .6; g.stroke();
+      for (let i = 1; i < teeth; i++) { const tx = x - w + 2 * w * i / teeth, d = Math.sin(Math.PI * i / teeth); g.beginPath(); g.moveTo(tx, y + h * .35 * d); g.lineTo(tx + wob(3), y + h * .95 * d); g.stroke(); }
+    }
+  };
+  const dot = (x, y, r) => { g.beginPath(); g.ellipse(x, y, r, r * (1.2 + rand() * .5), wob(.4), 0, Math.PI * 2); g.fill(); };
+  const cross = (x, y, r, lw) => { g.lineWidth = lw; g.beginPath(); g.moveTo(x - r, y - r); g.lineTo(x + r, y + r); g.moveTo(x + r, y - r); g.lineTo(x - r, y + r); g.stroke(); };
+  if (variant === 0) { ring(128, 112, 82, 9); dot(98, 92, 9); dot(158, 92, 9); grin(128, 118, 50, 40, 9, 0); }
+  else if (variant === 1) { dot(92, 80, 13); dot(164, 80, 13); grin(128, 104, 96, 76, 8, 9); }
+  else if (variant === 2) { ring(128, 112, 80, 9); cross(98, 92, 12, 8); cross(158, 92, 12, 8); grin(128, 120, 48, 38, 9, 0); }
+  else if (variant === 3) {
+    for (const [x, y, r] of [[70, 70, 34], [180, 92, 28], [112, 170, 38]]) { ring(x, y, r, 5); dot(x - r * .35, y - r * .25, 4); dot(x + r * .35, y - r * .25, 4); grin(x, y + r * .05, r * .6, r * .5, 5, 0); }
+  } else {
+    ring(128, 96, 66, 8); dot(104, 80, 8); dot(152, 80, 8); grin(128, 100, 40, 30, 8, 0);
+    g.shadowBlur = 3; g.font = '900 40px "Noto Serif TC",serif'; g.textAlign = 'center'; g.fillText(L('笑一個', 'SMILE'), 128 + wob(6), 214);
+  }
+  // 流痕：從筆畫的下緣往下流
+  g.shadowBlur = 2;
+  const id = g.getImageData(0, 0, s, s), d = id.data;
+  for (let k = 0; k < 7; k++) {
+    const x = 40 + rand() * 176 | 0;
+    let y = -1; for (let yy = s - 1; yy > 0; yy--) if (d[(yy * s + x) * 4 + 3] > 120) { y = yy; break; }
+    if (y < 0) continue;
+    const len = 12 + rand() * 60, w = 1.5 + rand() * 2.5;
+    g.lineWidth = w; g.beginPath(); g.moveTo(x, y - 2); g.lineTo(x + wob(2), Math.min(s - 6, y + len)); g.stroke();
+    g.beginPath(); g.arc(x, Math.min(s - 6, y + len), w * .9, 0, Math.PI * 2); g.fill();
+  }
+  // 噴點和斑駁：在筆畫附近灑小點，再讓整體透明度不均
+  g.shadowBlur = 0;
+  const src = g.getImageData(0, 0, s, s).data;
+  for (let k = 0; k < 900; k++) {
+    const x = rand() * s | 0, y = rand() * s | 0;
+    if (src[(y * s + x) * 4 + 3] < 100) continue;
+    const a = rand() * 6, r = 6 + rand() * 16;
+    g.globalAlpha = .3 + rand() * .5; g.beginPath(); g.arc(x + Math.cos(a) * r, y + Math.sin(a) * r, .6 + rand() * 1.4, 0, Math.PI * 2); g.fill();
+  }
+  g.globalAlpha = 1;
+  const out = g.getImageData(0, 0, s, s), od = out.data, wear = fbm(s, 8, 4);
+  for (let i = 0; i < s * s; i++) od[i * 4 + 3] *= clamp((wear[i] - .25) * 2.2, .25, 1);
+  g.putImageData(out, 0, 0);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return t;
+}
+
+// ---------- 場景 ----------
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+scene.fog = new THREE.FogExp2(0x000000, 0.11);
+const camera = new THREE.PerspectiveCamera(72, 1, 0.05, 60);
+scene.add(new THREE.AmbientLight(0x1b1d22, 0.12));
+const flash = new THREE.SpotLight(0xffe8c8, 3.4, 24, 0.5, 0.6, 1.7);
+flash.castShadow = true;
+flash.shadow.mapSize.setScalar(TOUCH ? 512 : 1024);
+flash.shadow.bias = -0.0006;
+flash.shadow.camera.near = 0.1; flash.shadow.camera.far = 24;
+scene.add(flash, flash.target);
+const spill = new THREE.PointLight(0xffe8c8, 0.35, 4, 2);   // 手電筒散到身邊的一點光
+scene.add(spill);
+
+let wallMat, floorMat, ceilMat, doorMat, fleshMat, paleMat, boxMat, holeMat, fuseMat, capMat, ledMat, graffitiMats = [];
+const graffitiGeo = new THREE.PlaneGeometry(1, 1);
+let level = null, monsterObj = null, exitSignMat, exitGlow;
+
+function buildMaterials() {
+  const w = makeWall(), f = makeFloor(), c = makeCeil(), d = makeDoor();
+  wallMat = new THREE.MeshStandardMaterial({ map: w.map, normalMap: w.normal, roughness: .88, metalness: 0 });
+  for (const t of [f.map, f.rough, f.normal]) t.repeat.set(N, N);
+  floorMat = new THREE.MeshStandardMaterial({ map: f.map, roughnessMap: f.rough, normalMap: f.normal, roughness: 1, metalness: .05 });
+  for (const t of [c.map, c.normal]) t.repeat.set(N, N);
+  ceilMat = new THREE.MeshStandardMaterial({ map: c.map, normalMap: c.normal, roughness: .95 });
+  doorMat = new THREE.MeshStandardMaterial({ map: d.map, normalMap: d.normal, roughness: .7, metalness: .4 });
+  const fs = 256, fh = fbm(fs, 8, 5);
+  const fleshN = normalTex(fh, fs, 7); fleshN.repeat.set(3, 3);
+  fleshMat = new THREE.MeshStandardMaterial({ color: 0x0e0b09, roughness: .3, metalness: .05, normalMap: fleshN, normalScale: new THREE.Vector2(.9, .9) });
+  paleMat = new THREE.MeshStandardMaterial({ color: 0xd9d0bd, roughness: .6, emissive: 0x1c1a15 });
+  boxMat = new THREE.MeshStandardMaterial({ color: 0x4f5352, roughness: .55, metalness: .6, normalMap: d.normal });
+  holeMat = new THREE.MeshStandardMaterial({ color: 0x0b0b0b, roughness: .9 });
+  fuseMat = new THREE.MeshStandardMaterial({ color: 0xcfc4ab, roughness: .45 });
+  capMat = new THREE.MeshStandardMaterial({ color: 0xb8b2a2, roughness: .3, metalness: .9 });
+  ledMat = new THREE.MeshBasicMaterial({ color: 0xff2412 });
+  for (let v = 0; v < 5; v++) for (let k = 0; k < 2; k++) {
+    const map = makeGraffiti(v, GRAFFITI_INK[rand() * GRAFFITI_INK.length | 0]);
+    graffitiMats.push(new THREE.MeshStandardMaterial({ map, transparent: true, depthWrite: false, roughness: .85, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+  }
+}
+
+// ---------- 怪物：參考圖那種細長多肢、濕亮的黑色身體 ----------
+function taper(points, r0, r1, segs, radial) {
+  const curve = new THREE.CatmullRomCurve3(points), fr = curve.computeFrenetFrames(segs, false);
+  const pos = [], uv = [], idx = [], ph = rand() * 9;
+  for (let i = 0; i <= segs; i++) {
+    const t = i / segs, P = curve.getPointAt(t), Nn = fr.normals[i], B = fr.binormals[i];
+    const r = (r0 + (r1 - r0) * t) * (1 + .22 * Math.sin(t * 23 + ph) * Math.sin(t * 7 + ph * 2));
+    for (let j = 0; j <= radial; j++) {
+      const v = j / radial * Math.PI * 2, c = Math.cos(v), s = Math.sin(v);
+      pos.push(P.x + r * (c * Nn.x + s * B.x), P.y + r * (c * Nn.y + s * B.y), P.z + r * (c * Nn.z + s * B.z));
+      uv.push(j / radial, t * 4);
+    }
+  }
+  for (let i = 0; i < segs; i++) for (let j = 0; j < radial; j++) {
+    const a = i * (radial + 1) + j, b = a + radial + 1;
+    idx.push(a, b, a + 1, b, b + 1, a + 1);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx); g.computeVertexNormals();
+  return g;
+}
+function lumpy(r, k, amp) {
+  const g = new THREE.SphereGeometry(r, 40, 28), p = g.attributes.position, v = new THREE.Vector3(), n = new THREE.Vector3();
+  const a = rand() * 6, b = rand() * 6, c = rand() * 6;
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i); n.copy(v).normalize();
+    const d = Math.sin(v.x * k + a) * Math.sin(v.y * k * 1.3 + b) * Math.sin(v.z * k * .9 + c) + .5 * Math.sin(v.x * k * 2.7 + b) * Math.sin(v.z * k * 2.3 + a);
+    v.addScaledVector(n, d * amp); p.setXYZ(i, v.x, v.y, v.z);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+function buildMonster() {
+  const grp = new THREE.Group(), V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const add = (geo, mat = fleshMat) => { const m = new THREE.Mesh(geo, mat); m.castShadow = true; grp.add(m); return m; };
+  const body = add(lumpy(.42, 7, .06)); body.position.set(0, 1.55, 0); body.scale.set(.95, .9, 1.15);
+  const head = add(lumpy(.27, 9, .035)); head.position.set(0, 1.84, .5); head.scale.set(.85, 1.05, 1);
+  const mark = add(new THREE.SphereGeometry(.06, 12, 8), paleMat); mark.position.set(-.08, 1.92, .74); mark.scale.set(1, 1.5, .4);
+  const j = () => (rand() - .5) * .16;
+  for (const th of [-2.6, -1.75, -.95, .95, 1.75, 2.6]) {
+    const dx = Math.sin(th), dz = Math.cos(th), foot = V(dx * 1.25, .02, dz * 1.25);
+    add(taper([V(dx * .3, 1.5, dz * .3), V(dx * .72 + j(), 2.3 + j(), dz * .72 + j()), V(dx * 1.12 + j(), 1.15 + j(), dz * 1.12 + j()), foot], .065, .012, 40, 8));
+    for (let c = 0; c < 3; c++) {
+      const a = th + (c - 1) * .5;
+      add(taper([foot.clone().add(V(0, .08, 0)), foot.clone().add(V(Math.sin(a) * .12, .03, Math.cos(a) * .12)), foot.clone().add(V(Math.sin(a) * .24, 0, Math.cos(a) * .24))], .012, .002, 8, 5));
+    }
+  }
+  for (const sd of [-1, 1]) {
+    const sh = V(sd * .28, 1.6, .35), el = V(sd * .56, 1.25, .7), wr = V(sd * .42, .8, .86);
+    add(taper([sh, el, wr], .045, .02, 24, 7));
+    for (let f = 0; f < 4; f++) {
+      const sp = (f - 1.5) * .06;
+      add(taper([wr, V(wr.x + sp + sd * .04, .55, wr.z + .08 + rand() * .05), V(wr.x + sp * 1.8 + sd * .02, .26 + rand() * .06, wr.z + .05 + rand() * .08)], .012, .003, 14, 5));
+    }
+  }
+  grp.scale.setScalar(.92);
+  return grp;
+}
+
+// ---------- 迷宮 ----------
+let map, exitInfo;
+const distMap = new Int16Array(N * N);
+function genMaze() {
+  map = new Uint8Array(N * N).fill(1);
+  const C = (N - 1) / 2, seen = new Uint8Array(C * C), stack = [[0, 0]];
+  seen[0] = 1; map[N + 1] = 0;
+  while (stack.length) {
+    const [cx, cy] = stack[stack.length - 1];
+    const nb = DIRS.filter(([dx, dy]) => { const nx = cx + dx, ny = cy + dy; return nx >= 0 && ny >= 0 && nx < C && ny < C && !seen[ny * C + nx]; });
+    if (!nb.length) { stack.pop(); continue; }
+    const [dx, dy] = nb[rand() * nb.length | 0], nx = cx + dx, ny = cy + dy;
+    seen[ny * C + nx] = 1;
+    map[(2 * cy + 1 + dy) * N + 2 * cx + 1 + dx] = 0;
+    map[(2 * ny + 1) * N + 2 * nx + 1] = 0;
+    stack.push([nx, ny]);
+  }
+  // 打掉少數牆做出迴圈，牠才能從不同方向繞過來
+  for (let y = 1; y < N - 1; y++) for (let x = 1; x < N - 1; x++) {
+    if (map[y * N + x] !== 1) continue;
+    const h = x % 2 === 0 && y % 2 === 1 && !map[y * N + x - 1] && !map[y * N + x + 1];
+    const v = x % 2 === 1 && y % 2 === 0 && !map[(y - 1) * N + x] && !map[(y + 1) * N + x];
+    if ((h || v) && rand() < .1) map[y * N + x] = 0;
+  }
+  // 出口開在外牆上，離起點走路最遠的地方
+  bfs(1, 1);
+  let best = -1;
+  for (let i = 1; i < N - 1; i++) for (const [x, y, ix, iy] of [[i, 0, 0, 1], [i, N - 1, 0, -1], [0, i, 1, 0], [N - 1, i, -1, 0]]) {
+    const d = distMap[(y + iy) * N + x + ix];
+    if (d > best) { best = d; exitInfo = { x, y, ix, iy }; }
+  }
+  map[exitInfo.y * N + exitInfo.x] = 2;
+}
+function bfs(sx, sy) {
+  distMap.fill(-1);
+  const q = [sy * N + sx]; distMap[q[0]] = 0;
+  for (let i = 0; i < q.length; i++) {
+    const c = q[i], cx = c % N, cy = c / N | 0;
+    for (const [dx, dy] of DIRS) {
+      const nx = cx + dx, ny = cy + dy;
+      if (nx < 0 || ny < 0 || nx >= N || ny >= N) continue;
+      const n = ny * N + nx;
+      if (map[n] === 0 && distMap[n] < 0) { distMap[n] = distMap[c] + 1; q.push(n); }
+    }
+  }
+}
+// ---------- 保險絲：迷宮切成四區，起點那區一個、另外兩區各一個，出口在最後一區 ----------
+const REGION_NAME = EN ? ['Northwest zone', 'Northeast zone', 'Southwest zone', 'Southeast zone'] : ['西北區', '東北區', '西南區', '東南區'];
+const regionOf = (x, y) => (x > 15 ? 1 : 0) + (y > 15 ? 2 : 0);
+let fuseList = [], regionOrder = [];
+function placeFuses() {
+  bfs(1, 1);
+  const r0 = regionOf(1, 1), re = regionOf(exitInfo.x + exitInfo.ix, exitInfo.y + exitInfo.iy);
+  const near = [1e9, 1e9, 1e9, 1e9];
+  for (let i = 0; i < N * N; i++) if (distMap[i] >= 0) { const r = regionOf(i % N, i / N | 0); near[r] = Math.min(near[r], distMap[i]); }
+  let rest = [0, 1, 2, 3].filter(r => r !== r0);
+  const lastR = re !== r0 ? re : rest.slice().sort((a, b) => near[b] - near[a])[0];
+  rest = rest.filter(r => r !== lastR).sort((a, b) => near[a] - near[b]);
+  regionOrder = [r0, ...rest, lastR];
+  fuseList = regionOrder.slice(0, 3).map((r, k) => {
+    const cells = [];
+    for (let y = 1; y < N - 1; y += 2) for (let x = 1; x < N - 1; x += 2) {
+      if (regionOf(x, y) !== r || distMap[y * N + x] < 0) continue;
+      const walls = DIRS.filter(([dx, dy]) => map[(y + dy) * N + x + dx] === 1);
+      cells.push({ x, y, d: distMap[y * N + x], walls, dead: walls.length === 3 });
+    }
+    // 優先放在死路盡頭，而且離起點遠一點
+    let pool = cells.filter(c => c.dead && (k > 0 || c.d >= 6));
+    if (!pool.length) pool = cells.filter(c => c.walls.length && c.d > 0);
+    pool.sort((a, b) => b.d - a.d);
+    const c = pool[rand() * Math.ceil(pool.length / 2) | 0];
+    let w;
+    if (c.dead) { const o = DIRS.find(dd => !c.walls.includes(dd)); w = [-o[0], -o[1]]; }
+    else w = c.walls[rand() * c.walls.length | 0];
+    return { x: c.x, y: c.y, wx: w[0], wy: w[1], bx: c.x + .5 + w[0] * .45, by: c.y + .5 + w[1] * .45, region: r, dead: c.dead, got: false };
+  });
+}
+// 紙條上的位置描述：哪一區＋區裡的哪一帶
+function where(f) {
+  const r = f.region, x0 = r & 1 ? 17 : 1, y0 = r & 2 ? 17 : 1, w = r & 1 ? 12 : 14, h = r & 2 ? 12 : 14;
+  const rx = (f.x - x0) / w, ry = (f.y - y0) / h;
+  if (EN) {
+    const n = ry < .34 ? 'north' : ry > .66 ? 'south' : '', e = rx < .34 ? 'west' : rx > .66 ? 'east' : '';
+    const at = n && e ? n + e + ' corner' : (n || e) ? 'along the ' + (n || e) + ' side' : 'around the middle';
+    return REGION_NAME[r] + (r === regionOrder[0] ? ' (where you woke up)' : '') + ', ' + at + (f.dead ? ', at a dead end' : '');
+  }
+  const ns = ry < .34 ? '北' : ry > .66 ? '南' : '', ew = rx < .34 ? '西' : rx > .66 ? '東' : '';
+  const pos = ns && ew ? ew + ns + '角' : (ns || ew) ? '靠' + (ns || ew) + '邊' : '中間一帶';
+  return REGION_NAME[r] + (r === regionOrder[0] ? '（你醒來的這區）' : '') + '，' + pos + (f.dead ? '，死路盡頭' : '');
+}
+function noteText() {
+  if (EN) return 'There are three fuses, in fuse boxes on the walls.\nIf the red light is still blinking, nobody has taken it yet.\n\n'
+    + '1. ' + where(fuseList[0]) + '\n2. ' + where(fuseList[1]) + '\n3. ' + where(fuseList[2])
+    + "\n\nThe exit door only gets power once all three are back.\nI tore the map into four pieces. The other three are with the fuses.\n\nDon't stare at the map for too long.\nWhen you look down, it comes.";
+  return '保險絲一共三個，裝在牆上的保險絲盒裡。\n紅燈還在閃的，就是還沒人拿過。\n\n'
+    + '一、' + where(fuseList[0]) + '\n二、' + where(fuseList[1]) + '\n三、' + where(fuseList[2])
+    + '\n\n三個都找回來，出口的門才會通電。\n地圖我撕成了四塊，其他三塊跟保險絲放在一起。\n\n別看地圖看太久。\n你低頭的時候，牠會過來。';
+}
+function buildFuseBox(f) {
+  const grp = new THREE.Group(), add = (geo, mat, x, y, z) => { const o = new THREE.Mesh(geo, mat); o.position.set(x, y, z); grp.add(o); return o; };
+  add(new THREE.BoxGeometry(.34, .46, .1), boxMat, 0, 0, 0).castShadow = true;
+  add(new THREE.PlaneGeometry(.26, .34), holeMat, 0, -.02, .051);
+  const fz = new THREE.Group(); fz.position.set(0, -.02, .08); grp.add(fz);
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(.022, .022, .13, 14), fuseMat); body.rotation.z = Math.PI / 2; fz.add(body);
+  for (const sx of [-.068, .068]) { const cp = new THREE.Mesh(new THREE.CylinderGeometry(.027, .027, .03, 14), capMat); cp.rotation.z = Math.PI / 2; cp.position.x = sx; fz.add(cp); }
+  f.fuseObj = fz;
+  f.led = add(new THREE.SphereGeometry(.014, 10, 8), ledMat, .12, .18, .056);
+  const cx = (f.x + .5) * S, cz = (f.y + .5) * S;
+  grp.position.set(cx + f.wx * (S / 2 - .05), 1.35, cz + f.wy * (S / 2 - .05));
+  grp.lookAt(cx, 1.35, cz);
+  return grp;
+}
+
+// 笑臉塗鴉：開局起點那區有幾個；每拿到一塊地圖，新的那區和你背後的牆上就多出幾個
+const usedFaces = new Set();
+function cellsIn(r) {
+  const out = [];
+  for (let y = 1; y < N - 1; y += 2) for (let x = 1; x < N - 1; x += 2) if (regionOf(x, y) === r) out.push([x, y]);
+  return out;
+}
+function cellsBehind() {
+  const out = [], px = p.x | 0, py = p.y | 0;
+  for (let y = 1; y < N - 1; y += 2) for (let x = 1; x < N - 1; x += 2) {
+    if (Math.abs(x - px) + Math.abs(y - py) > 8) continue;
+    const rel = angNorm(Math.atan2(y + .5 - p.y, x + .5 - p.x) - p.a);
+    if (Math.abs(rel) > 1.8 || (x === px && y === py)) out.push([x, y]);
+  }
+  return out;
+}
+function addGraffiti(cells, count) {
+  for (let placed = 0, tries = 0; placed < count && tries < 300 && cells.length; tries++) {
+    const [x, y] = cells[rand() * cells.length | 0];
+    const walls = DIRS.filter(([dx, dy]) => map[(y + dy) * N + x + dx] === 1);
+    if (!walls.length) continue;
+    const [wx, wy] = walls[rand() * walls.length | 0], key = x + ',' + y + ',' + wx + ',' + wy;
+    if (usedFaces.has(key) || fuseList.some(f => f.x === x && f.y === y && f.wx === wx && f.wy === wy)) continue;
+    usedFaces.add(key);
+    const mesh = new THREE.Mesh(graffitiGeo, graffitiMats[rand() * graffitiMats.length | 0]);
+    const cx = (x + .5) * S, cz = (y + .5) * S, off = (rand() - .5) * S * .35, h = 1.15 + rand() * .7;
+    const ax = cx - wy * off, az = cz + wx * off;   // 沿著牆面左右錯開
+    mesh.scale.setScalar(.8 + rand() * .6);
+    mesh.position.set(ax + wx * (S / 2 - .012), h, az + wy * (S / 2 - .012));
+    mesh.lookAt(ax, h, az);
+    mesh.rotateZ((rand() - .5) * .5);
+    level.add(mesh); placed++;
+  }
+}
+
+function los(x0, y0, x1, y1) {
+  const dx = x1 - x0, dy = y1 - y0, n = Math.ceil(Math.hypot(dx, dy) / .05);
+  for (let i = 1; i < n; i++) { const x = x0 + dx * i / n, y = y0 + dy * i / n; if (map[(y | 0) * N + (x | 0)]) return false; }
+  return true;
+}
+
+function buildLevel() {
+  if (level) { scene.remove(level); level.traverse(o => { if (o.geometry) o.geometry.dispose(); }); }
+  level = new THREE.Group();
+  let count = 0;
+  for (let i = 0; i < N * N; i++) if (map[i] === 1) count++;
+  const walls = new THREE.InstancedMesh(new THREE.BoxGeometry(S, WALL_H, S), wallMat, count);
+  const m4 = new THREE.Matrix4();
+  let k = 0;
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (map[y * N + x] === 1) { m4.makeTranslation((x + .5) * S, WALL_H / 2, (y + .5) * S); walls.setMatrixAt(k++, m4); }
+  walls.castShadow = walls.receiveShadow = true;
+  level.add(walls);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(N * S, N * S), floorMat);
+  floor.rotation.x = -Math.PI / 2; floor.position.set(N * S / 2, 0, N * S / 2); floor.receiveShadow = true;
+  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(N * S, N * S), ceilMat);
+  ceil.rotation.x = Math.PI / 2; ceil.position.set(N * S / 2, WALL_H, N * S / 2); ceil.receiveShadow = true;
+  level.add(floor, ceil);
+  // 出口門＋綠色標示（標示只在走近時看得到）
+  const e = exitInfo, ex = (e.x + .5) * S, ez = (e.y + .5) * S;
+  const door = new THREE.Mesh(new THREE.BoxGeometry(S, WALL_H, S), doorMat);
+  door.position.set(ex, WALL_H / 2, ez); door.receiveShadow = true;
+  const sc = document.createElement('canvas'); sc.width = 256; sc.height = 96;
+  const g = sc.getContext('2d'); g.fillStyle = '#061a0b'; g.fillRect(0, 0, 256, 96);
+  g.fillStyle = '#5dff86'; g.font = 'bold 54px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('EXIT', 128, 50);
+  const st = new THREE.CanvasTexture(sc); st.encoding = THREE.sRGBEncoding;
+  // 沒通電前標示是暗的，三個保險絲都拿到才亮
+  exitSignMat = new THREE.MeshBasicMaterial({ map: st, color: 0x141414 });
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(.8, .3), exitSignMat);
+  const sx = ex + e.ix * (S / 2 + .01), sz = ez + e.iy * (S / 2 + .01);
+  sign.position.set(sx, 2.55, sz); sign.lookAt(sx + e.ix, 2.55, sz + e.iy);
+  exitGlow = new THREE.PointLight(0x3cff6a, 0, 6, 2); exitGlow.position.set(sx + e.ix * .5, 2.4, sz + e.iy * .5);
+  level.add(door, sign, exitGlow);
+  for (const f of fuseList) level.add(buildFuseBox(f));
+  scene.add(level);
+  if (!monsterObj) { monsterObj = buildMonster(); scene.add(monsterObj); }
+}
+
+// ---------- 狀態 ----------
+let state = 'loading', p, m, t = 0, last = 0, noiseK = 0, flick = 1, scareT = 0, mouseDX = 0, mouseDY = 0, bob = 0;
+let fuses = 0, mapOpen = false, intro = false, lockedT = -9;
+const SPEEDS = [.5, .9, 1.3, 1.7];   // 怪物速度（格每秒），依已拿到的保險絲數；玩家前進是 1.55
+const keys = {};
+
+function newGame() {
+  genMaze();
+  placeFuses();
+  buildLevel();
+  fuses = 0; lockedT = -9;
+  usedFaces.clear(); addGraffiti(cellsIn(regionOrder[0]), 4);
+  p = { x: 1.5, y: 1.5, a: map[N + 2] === 0 ? 0 : Math.PI / 2, pitch: 0 };
+  // 怪物出生在最後一區（出口那區）裡，走路距離至少是全迷宮最遠距離的六成，開局不會被堵在起點的單行道
+  bfs(1, 1);
+  let maxD = 0;
+  for (let i = 0; i < N * N; i++) maxD = Math.max(maxD, distMap[i]);
+  let cand = [];
+  for (let y = 1; y < N - 1; y += 2) for (let x = 1; x < N - 1; x += 2) {
+    const i = y * N + x;
+    if (regionOf(x, y) === regionOrder[3] && distMap[i] >= maxD * .6) cand.push(i);
+  }
+  if (!cand.length) for (let i = 0; i < N * N; i++) if (distMap[i] >= maxD * .6) cand.push(i);
+  const s = cand[rand() * cand.length | 0];
+  const sx = s % N + .5, sy = (s / N | 0) + .5;
+  m = { x: sx, y: sy, tx: sx, ty: sy, beat: 0 };
+  t = 0; noiseK = 0; flick = 1;
+}
+
+// 「面對」＝牠在畫面左右範圍內，而且中間沒有牆
+function sees() {
+  if (mapOpen) return false;   // 低頭看地圖時看不到牠
+  const dx = m.x - p.x, dy = m.y - p.y, d = Math.max(Math.hypot(dx, dy), .01);
+  const rel = angNorm(Math.atan2(dy, dx) - p.a);
+  const half = Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect);
+  if (Math.abs(rel) > half + Math.atan(.45 / Math.max(d, .3))) return false;
+  const ox = -dy / d * .4, oy = dx / d * .4;
+  return los(p.x, p.y, m.x, m.y) || los(p.x, p.y, m.x + ox, m.y + oy) || los(p.x, p.y, m.x - ox, m.y - oy);
+}
+
+function stepMonster(move, ptx, pty) {
+  const mtx = m.x | 0, mty = m.y | 0;
+  if (mtx === ptx && mty === pty) {
+    const dx = p.x - m.x, dy = p.y - m.y, d = Math.hypot(dx, dy) || 1e-6, s = Math.min(move, d);
+    m.x += dx / d * s; m.y += dy / d * s; m.tx = m.x; m.ty = m.y;
+    return s;
+  }
+  let dx = m.tx - m.x, dy = m.ty - m.y, d = Math.hypot(dx, dy);
+  if (d < 1e-4) {
+    const c = mty * N + mtx, opts = [];
+    for (const [ox, oy] of DIRS) { const n = c + oy * N + ox; if (map[n] === 0 && distMap[n] === distMap[c] - 1) opts.push([mtx + ox, mty + oy]); }
+    if (!opts.length) return 0;
+    const [nx, ny] = opts[rand() * opts.length | 0];
+    m.tx = nx + .5; m.ty = ny + .5;
+    dx = m.tx - m.x; dy = m.ty - m.y; d = Math.hypot(dx, dy);
+  }
+  const s = Math.min(move, d);
+  m.x += dx / d * s; m.y += dy / d * s;
+  return s;
+}
+
+function hit(x, y) {
+  const tile = map[(y | 0) * N + (x | 0)];
+  if (tile === 2 && state === 'play') {
+    if (fuses >= 3) escape();
+    else if (t - lockedT > 3) { lockedT = t; lockedSound(); toast(L('門鎖著，沒有電。還差 ' + (3 - fuses) + ' 個保險絲。', 'Locked, no power. ' + (3 - fuses) + (3 - fuses === 1 ? ' fuse' : ' fuses') + ' to go.')); }
+  }
+  return tile !== 0;
+}
+function pickFuse(f) {
+  f.got = true; fuses++;
+  f.fuseObj.visible = false; f.led.visible = false;
+  addGraffiti(cellsIn(regionOrder[fuses]), 9);
+  addGraffiti(cellsBehind(), 3);
+  pickupSound();
+  if (fuses < 3) toast(L('拿到保險絲（' + fuses + '／3）。盒子裡還夾著一塊地圖，' + (TOUCH ? '點右上「地圖」看。' : '按 M 看。'), 'Got a fuse (' + fuses + '/3). There is a map piece in the box too. ' + (TOUCH ? 'Tap Map, upper right.' : 'Press M to look.')));
+  else {
+    exitSignMat.color.setHex(0xbbbbbb); exitGlow.intensity = .9; powerSound();
+    toast(L('第三個。遠處有什麼東西「喀」一聲通電了。', 'The third one. Somewhere far off, something clicks on.'));
+  }
+}
+function moveP(dx, dy) {
+  const r = .2;
+  if (dx) { const nx = p.x + dx, ex = nx + Math.sign(dx) * r; if (!hit(ex, p.y - r * .9) && !hit(ex, p.y + r * .9)) p.x = nx; }
+  if (dy) { const ny = p.y + dy, ey = ny + Math.sign(dy) * r; if (!hit(p.x - r * .9, ey) && !hit(p.x + r * .9, ey)) p.y = ny; }
+}
+
+function update(dt) {
+  if (intro) return;          // 開局讀紙條時時間不走
+  t += dt;
+  if (!mapOpen) {             // 看地圖時站著不動
+    let turn = 0;
+    if (keys.ArrowLeft || keys.KeyQ) turn -= 1;
+    if (keys.ArrowRight || keys.KeyE) turn += 1;
+    p.a = angNorm(p.a + turn * 2 * dt + mouseDX * .0024);
+    p.pitch = clamp(p.pitch - mouseDY * .0022, -.5, .5);
+    const dx = Math.cos(p.a), dy = Math.sin(p.a);
+    let fw = 0, st = 0;
+    if (keys.KeyW || keys.ArrowUp) fw += 1;
+    if (keys.KeyS || keys.ArrowDown) fw -= 1;
+    if (keys.KeyA) st -= 1;
+    if (keys.KeyD) st += 1;
+    if (Math.hypot(joy.x, joy.y) > .18) { fw = clamp(fw - joy.y, -1, 1); st = clamp(st + joy.x, -1, 1); }
+    const sp = fw > 0 ? 1.55 : .6;
+    const ox = p.x, oy = p.y;
+    moveP((dx * fw * sp - dy * st * .85) * dt, (dy * fw * sp + dx * st * .85) * dt);
+    bob += Math.hypot(p.x - ox, p.y - oy) * 5.5;
+  }
+  mouseDX = mouseDY = 0;
+  if (state !== 'play') return;
+  for (const f of fuseList) if (!f.got && Math.hypot(f.bx - p.x, f.by - p.y) < .6) pickFuse(f);
+
+  const ptx = p.x | 0, pty = p.y | 0;
+  bfs(ptx, pty);
+  if (t > 4 && !sees()) {
+    const spd = SPEEDS[fuses];
+    let left = spd * dt, moved = 0;
+    for (let i = 0; i < 4 && left > 1e-5; i++) { const s = stepMonster(left, ptx, pty); if (!s) break; moved += s; left -= s; }
+    if (moved) {
+      // 心跳間隔：距離 2 格以內每 0.38 秒一下，越遠越慢，最慢 1.15 秒
+      m.beat -= dt;
+      if (m.beat <= 0) { heartbeat(); m.beat = clamp(.38 + (Math.hypot(m.x - p.x, m.y - p.y) - 2) * .025, .38, 1.15); }
+    }
+    if (moved) monsterObj.lookAt(p.x * S, 0, p.y * S);
+  }
+  const d = Math.hypot(m.x - p.x, m.y - p.y);
+  if (d < .45) { caught(); return; }
+
+  noiseK = Math.pow(clamp((6 - d) / 5.2, 0, 1), 1.5);
+  if (rand() < .004 + noiseK * .06) flick = .1 + rand() * .5;
+  else flick += (1 - flick) * Math.min(1, dt * 6);
+  if (staticGain) staticGain.gain.setTargetAtTime(noiseK * noiseK * .2, ac.currentTime, .05);
+}
+
+// ---------- 後製：底片顆粒、暗角；牠越近，色偏、撕裂、雪花越重 ----------
+const rt = new THREE.WebGLRenderTarget(2, 2);
+const post = new THREE.ShaderMaterial({
+  uniforms: { tDiffuse: { value: rt.texture }, uK: { value: 0 }, uTime: { value: 0 }, uRes: { value: new THREE.Vector2(1, 1) } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+  fragmentShader: `
+    uniform sampler2D tDiffuse; uniform float uK, uTime; uniform vec2 uRes; varying vec2 vUv;
+    float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+    void main(){
+      vec2 uv = vUv;
+      float row = floor(uv.y * 90.0), tick = floor(uTime * 24.0);
+      float tear = step(1.0 - uK * 0.22, hash(vec2(row, tick)));
+      uv.x += tear * (hash(vec2(tick, row + 3.0)) - 0.5) * 0.09 * uK;
+      uv.x += sin(uv.y * 40.0 + uTime * 9.0) * 0.0025 * uK;
+      float ca = 0.0012 + uK * 0.01;
+      vec3 col = vec3(texture2D(tDiffuse, uv + vec2(ca, 0.0)).r, texture2D(tDiffuse, uv).g, texture2D(tDiffuse, uv - vec2(ca, 0.0)).b);
+      col = pow(max(col, 0.0), vec3(1.0 / 2.2));
+      vec2 px = floor(vUv * uRes);
+      float g = hash(px + fract(uTime * 7.31) * 113.0);
+      col += (g - 0.5) * (0.07 + uK * 0.3);
+      float snow = step(1.0 - uK * uK * 0.3, hash(px * 0.73 + uTime));
+      col = mix(col, vec3(g), snow);
+      float v = smoothstep(0.95, 0.25, length((vUv - 0.5) * vec2(1.25, 1.0)));
+      col *= mix(0.35, 1.0, v);
+      gl_FragColor = vec4(col, 1.0);
+    }`,
+  depthTest: false, depthWrite: false
+});
+const postScene = new THREE.Scene(), postCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+postScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), post));
+
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight, pr = renderer.getPixelRatio();
+  renderer.setSize(w, h, false);
+  rt.setSize(Math.floor(w * pr), Math.floor(h * pr));
+  post.uniforms.uRes.value.set(Math.floor(w * pr), Math.floor(h * pr));
+  camera.aspect = w / h;
+  camera.fov = camera.aspect < 1 ? 90 : 72;   // 手機直拿時把視角拉寬，左右才不會太窄
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+
+const fwd = new THREE.Vector3();
+function render(now) {
+  let cx = p.x * S, cz = p.y * S, cy = EYE + Math.sin(bob) * .035, a = p.a, pitch = p.pitch;
+  if (state === 'scare') { cx += (rand() - .5) * .08; cy += (rand() - .5) * .08; a += (rand() - .5) * .03; }
+  fwd.set(Math.cos(a) * Math.cos(pitch), Math.sin(pitch), Math.sin(a) * Math.cos(pitch));
+  camera.position.set(cx, cy, cz);
+  camera.lookAt(cx + fwd.x, cy + fwd.y, cz + fwd.z);
+  const rx = -Math.sin(a), rz = Math.cos(a), sway = Math.sin(now * .0011) * .04;
+  flash.position.set(cx + rx * .22, cy - .28, cz + rz * .22);
+  flash.target.position.set(cx + fwd.x * 6 + rx * sway * 6, cy + fwd.y * 6 - .3 + Math.sin(bob * .5) * .05, cz + fwd.z * 6 + rz * sway * 6);
+  flash.intensity = 3.4 * flick;
+  spill.position.set(cx, cy, cz); spill.intensity = .35 * flick;
+  monsterObj.position.set(m.x * S, 0, m.y * S);
+  for (const f of fuseList) if (!f.got) f.led.visible = now % 1400 < 160;
+  post.uniforms.uK.value = noiseK;
+  post.uniforms.uTime.value = now / 1000;
+  renderer.setRenderTarget(rt); renderer.render(scene, camera);
+  renderer.setRenderTarget(null); renderer.render(postScene, postCam);
+}
+
+// ---------- 聲音 ----------
+let ac, master, noiseBuf, staticGain;
+function initAudio() {
+  if (ac) { ac.resume(); return; }
+  try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+  master = ac.createGain(); master.gain.value = .9; master.connect(ac.destination);
+  noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+  const nd = noiseBuf.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = rand() * 2 - 1;
+  const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 170;
+  const dg = ac.createGain(); dg.gain.value = .05; lp.connect(dg).connect(master);
+  for (const f of [55, 55.6, 82.4]) { const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.connect(lp); o.start(); }
+  const s = ac.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
+  const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = .7;
+  staticGain = ac.createGain(); staticGain.gain.value = 0;
+  s.connect(bp).connect(staticGain).connect(master); s.start();
+}
+function panner(v) {
+  if (ac.createStereoPanner) { const pn = ac.createStereoPanner(); pn.pan.value = v; return pn; }
+  return ac.createGain();
+}
+// 心跳：牠在動的時候才跳。越近越快越大聲；稍微偏向牠那一側的聲道，在你背後時比較悶
+function heartbeat() {
+  if (!ac) return;
+  const dx = m.x - p.x, dy = m.y - p.y, d = Math.hypot(dx, dy);
+  const rel = angNorm(Math.atan2(dy, dx) - p.a), behind = Math.abs(rel) > Math.PI / 2;
+  // 音量跟距離：1 格內最大聲，8 格約一半，15 格約四分之一，29 格以外只剩極小聲
+  const vol = .03 + .97 * Math.pow(clamp(1 - (d - 1) / 28, 0, 1), 2), now = ac.currentTime;
+  const pn = panner(clamp(Math.sin(rel), -1, 1) * .6); pn.connect(master);
+  const lf = ac.createBiquadFilter(); lf.type = 'lowpass'; lf.frequency.value = behind ? 140 : 220; lf.connect(pn);
+  for (const [tt, f0, k] of [[0, 62, 1], [.17, 72, .7]]) {    // 「咚—咚」兩下
+    const o = ac.createOscillator(); o.type = 'sine';
+    o.frequency.setValueAtTime(f0, now + tt); o.frequency.exponentialRampToValueAtTime(38, now + tt + .14);
+    const g = ac.createGain();
+    g.gain.setValueAtTime(.0001, now + tt); g.gain.exponentialRampToValueAtTime(vol * .9 * k, now + tt + .012); g.gain.exponentialRampToValueAtTime(.001, now + tt + .2);
+    o.connect(g).connect(lf); o.start(now + tt); o.stop(now + tt + .22);
+  }
+}
+// 被抓到：一記悶擊、濕黏的濺血聲、四散的血滴，最後幾滴滴落
+function wetNoise(when, dur, f0, f1, vol, type = 'lowpass', q = 1) {
+  const t0 = ac.currentTime + when, src = ac.createBufferSource(); src.buffer = noiseBuf;
+  const f = ac.createBiquadFilter(); f.type = type; f.Q.value = q;
+  f.frequency.setValueAtTime(f0, t0); f.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+  const g = ac.createGain(); g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(.001, t0 + dur);
+  src.connect(f).connect(g).connect(master); src.start(t0, rand() * 1.5, dur + .02);
+}
+// 一灘血打在牆上或地上：先過低通，再用共振濾波器快速掃頻，聽起來才「濕」
+function splat(when, size, pan) {
+  const t0 = ac.currentTime + when, dur = .04 + size * .16;
+  const src = ac.createBufferSource(); src.buffer = noiseBuf;
+  const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1800 + size * 1500;
+  const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 5 + rand() * 5;
+  const f0 = 250 + rand() * 500 + (1 - size) * 700;
+  bp.frequency.setValueAtTime(f0, t0); bp.frequency.exponentialRampToValueAtTime(f0 * (1.8 + rand() * 1.5), t0 + dur);
+  const g = ac.createGain(); g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(.25 + size * .9, t0 + .004); g.gain.exponentialRampToValueAtTime(.001, t0 + dur);
+  const pn = panner(pan); pn.connect(master);
+  src.connect(lp).connect(bp).connect(g).connect(pn); src.start(t0, rand() * 1.5, dur + .02);
+}
+// 被抓到：一記悶擊撕開，血一陣一陣噴出來，大量血花四濺打在牆上地上，最後滴落
+function scareSound() {
+  if (!ac) return;
+  const now = ac.currentTime;
+  staticGain.gain.cancelScheduledValues(now); staticGain.gain.setValueAtTime(.12, now); staticGain.gain.exponentialRampToValueAtTime(.001, now + .6);
+  blip('sine', 95, 36, .35, .75);                          // 悶擊
+  wetNoise(0, .5, 2600, 220, .85, 'lowpass', 3);           // 撕開、爆開的那一下
+  wetNoise(.01, .16, 500, 1300, .6, 'bandpass', 7);        // 濕黏的擠壓
+  // 噴血：像水管一樣的嘶聲，跟著心跳一陣一陣噴，越噴越弱
+  const src = ac.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+  const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 450;
+  const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1600; bp.Q.value = .8;
+  const gg = ac.createGain(); gg.gain.setValueAtTime(.0001, now);
+  for (let k = 0; k < 5; k++) {
+    const t0 = now + .05 + k * .3, peak = .55 * (1 - k * .17);
+    gg.gain.exponentialRampToValueAtTime(peak, t0 + .03);
+    gg.gain.exponentialRampToValueAtTime(peak * .15, t0 + .26);
+    bp.frequency.setValueAtTime(1900 - k * 150, t0); bp.frequency.exponentialRampToValueAtTime(1100, t0 + .26);
+  }
+  gg.gain.exponentialRampToValueAtTime(.0001, now + 1.75);
+  src.connect(hp).connect(bp).connect(gg).connect(master); src.start(now); src.stop(now + 1.8);
+  // 大量血花：每一陣噴血帶出一串，前面大灘、後面細碎，左右散開
+  for (let i = 0; i < 70; i++) {
+    const w = .03 + Math.pow(rand(), 1.6) * 1.6, size = clamp(1 - w / 1.7, 0, 1) * (.4 + rand() * .6);
+    splat(w, size, (rand() * 2 - 1) * .85);
+  }
+  for (let i = 0; i < 6; i++) splat(.02 + rand() * .1, .9 + rand() * .1, (rand() * 2 - 1) * .4);   // 一開始幾灘最大的
+  for (const d of [1.7, 2.05, 2.3, 2.75, 3.3]) blip('sine', 480 + rand() * 200, 1500 + rand() * 400, .045, .07, d);   // 滴答
+}
+function blip(type, f0, f1, dur, vol, when = 0, lp = 0) {
+  const now = ac.currentTime + when, o = ac.createOscillator(); o.type = type;
+  o.frequency.setValueAtTime(f0, now); o.frequency.exponentialRampToValueAtTime(f1, now + dur);
+  const g = ac.createGain(); g.gain.setValueAtTime(vol, now); g.gain.exponentialRampToValueAtTime(.001, now + dur);
+  let out = o;
+  if (lp) { const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = lp; out = o.connect(f); }
+  out.connect(g).connect(master); o.start(now); o.stop(now + dur + .05);
+}
+function click(when, freq, vol) {
+  const now = ac.currentTime + when, src = ac.createBufferSource(); src.buffer = noiseBuf;
+  const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = 3;
+  const g = ac.createGain(); g.gain.setValueAtTime(vol, now); g.gain.exponentialRampToValueAtTime(.001, now + .06);
+  src.connect(f).connect(g).connect(master); src.start(now, rand(), .08);
+}
+// 拔保險絲：金屬喀兩聲＋一聲悶響
+function pickupSound() { if (!ac) return; click(0, 3200, .5); click(.09, 2400, .4); blip('sine', 160, 70, .2, .25); }
+// 門通電：低頻嗡聲慢慢起來
+function powerSound() {
+  if (!ac) return;
+  click(.1, 900, .6);
+  const now = ac.currentTime, o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = 50;
+  const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 220;
+  const g = ac.createGain(); g.gain.setValueAtTime(.001, now); g.gain.exponentialRampToValueAtTime(.12, now + .8); g.gain.exponentialRampToValueAtTime(.001, now + 3);
+  o.connect(f).connect(g).connect(master); o.start(now); o.stop(now + 3.1);
+}
+// 推門推不開：鈍鈍的金屬聲
+function lockedSound() { if (!ac) return; blip('square', 90, 60, .25, .12, 0, 300); click(0, 700, .35); }
+function winSound() {
+  if (!ac) return;
+  const now = ac.currentTime;
+  staticGain.gain.cancelScheduledValues(now); staticGain.gain.setValueAtTime(0, now);
+  for (const [f, d] of [[220, 0], [330, .25], [440, .5]]) {
+    const o = ac.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+    const og = ac.createGain(); og.gain.setValueAtTime(0, now + d); og.gain.linearRampToValueAtTime(.12, now + d + .05); og.gain.exponentialRampToValueAtTime(.001, now + d + 1.6);
+    o.connect(og).connect(master); o.start(now + d); o.stop(now + d + 1.7);
+  }
+}
+
+// ---------- 流程 ----------
+const hint = $('hint');
+const screens = ['title', 'lose', 'win'];
+function show(id) { for (const s of screens) $(s).hidden = s !== id; if (id) { const b = $(id).querySelector('button'); b && b.focus(); } }
+const fmt = s => String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+function lockPointer() { try { const r = cv.requestPointerLock && cv.requestPointerLock(); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+function unlockPointer() { try { document.pointerLockElement && document.exitPointerLock(); } catch (e) {} }
+
+let toastTimer;
+function toast(msg, sec = 4.5) {
+  const el = $('toast'); el.textContent = msg; el.hidden = false; el.style.opacity = 1;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.style.opacity = 0; }, sec * 1000);
+}
+function hideToast() { clearTimeout(toastTimer); $('toast').hidden = true; }
+
+// ---------- 地圖：撕成四塊，起點那塊跟紙條一起拿到，每個保險絲盒裡夾著下一塊 ----------
+const mctx = $('mapCv').getContext('2d'), MS = 14;
+function drawMap() {
+  const g = mctx, W = N * MS, open = new Set(regionOrder.slice(0, fuses + 1)), ok = (x, y) => open.has(regionOf(x, y));
+  g.clearRect(0, 0, W, W);
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  for (let r = 0; r < 4; r++) {
+    const px = (r & 1 ? 16 : 0) * MS, py = (r & 2 ? 16 : 0) * MS, pw = (r & 1 ? 15 : 16) * MS, ph = (r & 2 ? 15 : 16) * MS;
+    if (open.has(r)) continue;
+    g.fillStyle = 'rgba(42,34,25,.1)'; g.fillRect(px + 4, py + 4, pw - 8, ph - 8);
+    g.setLineDash([5, 5]); g.strokeStyle = 'rgba(42,34,25,.45)'; g.lineWidth = 1; g.strokeRect(px + 4.5, py + 4.5, pw - 9, ph - 9); g.setLineDash([]);
+    g.fillStyle = 'rgba(42,34,25,.55)'; g.font = '900 15px "Noto Serif TC",serif';
+    g.fillText(EN ? REGION_NAME[r].replace(' zone', '') + ' · missing' : REGION_NAME[r] + '・缺', px + pw / 2, py + ph / 2);
+  }
+  // 牆畫成墨線：相鄰的牆格連起來
+  g.strokeStyle = '#2a2219'; g.lineWidth = 2.4; g.lineCap = 'round'; g.beginPath();
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    if (map[y * N + x] !== 1 || !ok(x, y)) continue;
+    const cx = (x + .5) * MS, cy = (y + .5) * MS;
+    if (x + 1 < N && map[y * N + x + 1] === 1 && ok(x + 1, y)) { g.moveTo(cx, cy); g.lineTo(cx + MS, cy); }
+    if (y + 1 < N && map[(y + 1) * N + x] === 1 && ok(x, y + 1)) { g.moveTo(cx, cy); g.lineTo(cx, cy + MS); }
+  }
+  g.stroke();
+  g.strokeStyle = g.fillStyle = '#8f2418';
+  for (const f of fuseList) {
+    if (f.got || !open.has(f.region)) continue;
+    const cx = (f.x + .5) * MS, cy = (f.y + .5) * MS;
+    g.lineWidth = 2.6; g.beginPath(); g.moveTo(cx - 6, cy - 6); g.lineTo(cx + 6, cy + 6); g.moveTo(cx + 6, cy - 6); g.lineTo(cx - 6, cy + 6); g.stroke();
+  }
+  if (fuses >= 3) {
+    const e = exitInfo;
+    g.font = '900 13px "Noto Serif TC",serif';
+    g.fillText(L('出口', 'EXIT'), (e.x + .5 + e.ix * 2.2) * MS, (e.y + .5 + e.iy * 2.2) * MS);
+  }
+  // 你的位置和面向
+  const px = p.x * MS, py = p.y * MS;
+  g.lineWidth = 2; g.beginPath(); g.moveTo(px, py); g.lineTo(px + Math.cos(p.a) * 10, py + Math.sin(p.a) * 10); g.stroke();
+  g.beginPath(); g.arc(px, py, 4, 0, Math.PI * 2); g.fill();
+  $('fuseCount').textContent = EN ? 'Fuses ' + fuses + '/3' + (fuses >= 3 ? ' · Exit powered' : '') : '保險絲 ' + fuses + '／3' + (fuses >= 3 ? '・出口通電了' : '');
+}
+function openPaper(isIntro) {
+  intro = isIntro; mapOpen = true;
+  $('noteText').textContent = noteText();
+  $('noteOk').textContent = EN ? (isIntro ? 'Got it' : TOUCH ? 'Close' : 'Close (M/Esc)') : isIntro ? '收好' : TOUCH ? '收起來' : '收起來（M／Esc）';
+  releaseTouch();
+  unlockPointer();   // 看地圖時先放開滑鼠，Esc 才會送到遊戲、而不是被瀏覽器拿去解除鎖定
+  drawMap(); $('paper').hidden = false;
+  if (isIntro) $('noteOk').focus();
+}
+function closePaper() {
+  if (!mapOpen) return;
+  mapOpen = false; $('paper').hidden = true;
+  if (intro) {
+    intro = false;
+    hint.hidden = false; hint.style.opacity = 1; setTimeout(() => { hint.style.opacity = 0; }, 8000);
+  }
+  if (state === 'play' && document.pointerLockElement !== cv) lockPointer();
+}
+
+function start() {
+  initAudio(); newGame(); state = 'play'; show(null); hideToast();
+  if (TOUCH) {
+    $('touchUI').hidden = false;
+    const de = document.documentElement;   // Android 可以全螢幕；iPhone 不支援就略過
+    if (de.requestFullscreen && !document.fullscreenElement) de.requestFullscreen().catch(() => {});
+  }
+  openPaper(true);    // 開局先拿到紙條
+}
+function caught() {
+  state = 'scare'; scareT = 0; scareSound(); unlockPointer(); hint.hidden = true; hideToast();
+  $('touchUI').hidden = true; releaseTouch();
+  mapOpen = intro = false; $('paper').hidden = true;
+  // 牠出現在你面前
+  m.x = p.x + Math.cos(p.a) * .75; m.y = p.y + Math.sin(p.a) * .75;
+  monsterObj.position.set(m.x * S, 0, m.y * S);
+  monsterObj.lookAt(p.x * S, 0, p.y * S);
+  p.pitch = .12; noiseK = 1;
+  $('loseStat').textContent = EN ? 'Survived ' + fmt(t) + ' · Fuses ' + fuses + '/3' : '撐了 ' + fmt(t) + '・保險絲 ' + fuses + '／3';
+}
+function escape() {
+  state = 'won'; winSound(); unlockPointer(); hint.hidden = true; hideToast();
+  $('touchUI').hidden = true; releaseTouch();
+  $('winStat').textContent = L('用時 ', 'Time ') + fmt(t);
+  show('win');
+}
+for (const id of ['start', 'retry1', 'retry2']) $(id).addEventListener('click', start);
+$('noteOk').addEventListener('click', closePaper);
+cv.addEventListener('click', () => { if (state === 'play' && document.pointerLockElement !== cv) lockPointer(); });
+
+addEventListener('keydown', e => {
+  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
+  keys[e.code] = true;
+  if (e.code === 'KeyM' && !e.repeat && state === 'play' && !intro) { if (mapOpen) closePaper(); else openPaper(false); }
+  else if (e.code === 'Escape' && mapOpen) closePaper();
+  // Esc 收起地圖後瀏覽器不准馬上鎖回滑鼠，所以之後按任何鍵（例如 W 開始走）就自動鎖回去，不用再點畫面
+  if (!TOUCH && state === 'play' && !mapOpen && e.code !== 'Escape' && document.pointerLockElement !== cv) lockPointer();
+});
+addEventListener('keyup', e => { keys[e.code] = false; });
+addEventListener('blur', () => { for (const k in keys) keys[k] = false; releaseTouch(); });
+
+// 觸控：左下按住的地方出現搖桿，右邊拖曳轉頭
+const joy = { id: null, ox: 0, oy: 0, x: 0, y: 0 }, look = { id: null, x: 0, y: 0 }, JOY_R = 52;
+const zone = $('stickZone'), stickBase = $('stickBase'), knob = $('knob');
+function setKnob(x, y) { knob.style.transform = 'translate(' + x * JOY_R + 'px,' + y * JOY_R + 'px)'; }
+function releaseTouch() {
+  joy.id = look.id = null; joy.x = joy.y = 0; setKnob(0, 0);
+  stickBase.classList.remove('on'); stickBase.style.left = stickBase.style.top = '';
+}
+zone.addEventListener('pointerdown', e => {
+  if (joy.id !== null) return;
+  e.preventDefault();
+  joy.id = e.pointerId; joy.ox = e.clientX; joy.oy = e.clientY;
+  try { zone.setPointerCapture(e.pointerId); } catch (_) {}
+  const r = stage.getBoundingClientRect();
+  stickBase.classList.add('on'); stickBase.style.left = (e.clientX - r.left) + 'px'; stickBase.style.top = (e.clientY - r.top) + 'px';
+  setKnob(0, 0);
+});
+zone.addEventListener('pointermove', e => {
+  if (e.pointerId !== joy.id) return;
+  let dx = e.clientX - joy.ox, dy = e.clientY - joy.oy;
+  const d = Math.hypot(dx, dy);
+  if (d > JOY_R) { dx *= JOY_R / d; dy *= JOY_R / d; }
+  joy.x = dx / JOY_R; joy.y = dy / JOY_R; setKnob(joy.x, joy.y);
+});
+for (const ev of ['pointerup', 'pointercancel']) zone.addEventListener(ev, e => {
+  if (e.pointerId !== joy.id) return;
+  joy.id = null; joy.x = joy.y = 0; setKnob(0, 0);
+  stickBase.classList.remove('on'); stickBase.style.left = stickBase.style.top = '';
+});
+cv.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse' || look.id !== null) return;
+  look.id = e.pointerId; look.x = e.clientX; look.y = e.clientY;
+  try { cv.setPointerCapture(e.pointerId); } catch (_) {}
+});
+cv.addEventListener('pointermove', e => {
+  if (e.pointerId !== look.id) return;
+  if (state === 'play' && !mapOpen) { mouseDX += (e.clientX - look.x) * 2.2; mouseDY += (e.clientY - look.y) * 2.2; }
+  look.x = e.clientX; look.y = e.clientY;
+});
+for (const ev of ['pointerup', 'pointercancel']) cv.addEventListener(ev, e => { if (e.pointerId === look.id) look.id = null; });
+$('mapBtn').addEventListener('click', () => { if (state === 'play' && !intro) mapOpen ? closePaper() : openPaper(false); });
+addEventListener('mousemove', e => {
+  if (state !== 'play' || mapOpen) return;
+  if (document.pointerLockElement === cv || (e.buttons & 1)) { mouseDX += e.movementX || 0; mouseDY += e.movementY || 0; }
+});
+
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000 || 0); last = now;
+  if (state === 'play') { update(dt); if (state === 'play' || state === 'scare') render(now); if (mapOpen) drawMap(); }
+  else if (state === 'scare') {
+    scareT += dt; flick = rand() < .3 ? .2 : 1.3; render(now);
+    if (scareT > 1.2) { state = 'dead'; show('lose'); }
+  }
+  requestAnimationFrame(frame);
+}
+
+resize();
+setTimeout(() => {          // 先讓開場畫面畫出來，再生成材質
+  buildMaterials();
+  newGame(); state = 'title'; flick = .8; render(0);   // 開場畫面後面先有一條走廊
+  const b = $('start'); b.disabled = false; b.textContent = L('進入', 'Enter'); b.focus();
+  requestAnimationFrame(frame);
+}, 30);
+})();
+</script>

@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>李昀芸 作品集</title>
+<meta name="description" content="李昀芸 LEE YUNYUN：遊戲 UI、活動視覺、角色插畫與動態影片設計。">
+<meta property="og:title" content="李昀芸 LEE YUNYUN｜作品集">
+<meta property="og:description" content="遊戲 UI、活動視覺、角色插畫與動態影片設計。">
+<meta property="og:image" content="hero.webp">
+<meta name="theme-color" content="#8a3f14">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23f2b33d'/%3E%3Ctext x='32' y='43' font-family='Arial Black,sans-serif' font-size='30' font-weight='900' text-anchor='middle' fill='%236c2f0d'%3EY%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=184">
+<script>
+// 從另一頁蓋著布幕過來：第一個畫面就先蓋滿霧沙玻璃（樣式在 style.css 最後）
+try {
+  const w = sessionStorage.getItem('wipe'), h = document.documentElement;
+  if (w) { h.classList.add('wipecover', 'wipesheet'); h.dataset.wipe = w; }
+} catch (e) {}
+</script>
+<script>
+// 英文版：內容換好字才顯示，不會先閃一下中文（1.5 秒是保險）
+try {
+  const l = new URLSearchParams(location.search).get('lang') || localStorage.getItem('lang');
+  if (l === 'en') { document.documentElement.lang = 'en'; document.documentElement.classList.add('en-wait'); setTimeout(() => document.documentElement.classList.remove('en-wait'), 1500); }
+} catch (e) {}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+</head>
+<body>
+
+<div class="intro" id="intro" aria-hidden="true">
+  <p data-split>Lee Yunyun</p>
+  <small>PORTFOLIO 2026</small>
+  <span class="bar"></span>
+</div>
+
+<nav class="nav waiting">
+  <details class="nav-menu">
+    <summary aria-label="選單"><i></i><i></i><i></i></summary>
+    <div>
+      <a class="pill" href="#top" data-wipe-top="LEE YUNYUN">首頁 Home</a>
+      <a class="pill" href="#about">關於 About</a>
+      <a class="pill" href="#career">經歷 Career</a>
+      <a class="pill" href="works.html">設計 Designs</a>
+      <a class="pill" href="marketing.html">行銷 Marketing</a>
+      <a class="pill" href="#contact">聯絡 Contact</a>
+    </div>
+  </details>
+  <div class="group left">
+    <a class="pill" href="#top" data-wipe-top="LEE YUNYUN">首頁 Home</a>
+    <a class="pill" href="#about">關於 About</a>
+    <a class="pill" href="#career">經歷 Career</a>
+    <a class="pill" href="works.html">設計 Designs</a>
+    <a class="pill" href="marketing.html">行銷 Marketing</a>
+  </div>
+  <a class="badge" href="#top"><b>LEE YUNYUN</b><small>DESIGN</small></a>
+  <div class="group right">
+    <a class="pill" href="#contact">聯絡 Contact</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="stage">
+    <div class="hmain" id="hMain">
+    <p class="kicker" id="hKick" data-rv>Game UI · Visual Design · Motion</p>
+    <hr class="dots" data-rv>
+    <h1 class="mega" id="mega" data-split>Lee Yunyun</h1>
+    <hr class="dots" data-rv>
+    <p class="sub" id="hSub" data-split>李昀芸｜美術設計師</p>
+    </div>
+  </div>
+</header>
+
+<div class="ribbons" aria-hidden="true">
+  <div class="ribbon a"><div class="track" id="rA"></div></div>
+  <div class="ribbon b"><div class="track" id="rB"></div></div>
+</div>
+
+<section id="about">
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <span class="num" data-rv>(01)</span>
+        <h2 class="title" data-split>About</h2>
+        <p class="caps" data-rv>關於我</p>
+      </div>
+    </div>
+    <div class="about">
+      <p class="lead" data-i18n>我是<em>李昀芸</em>，做了十年的美術與影像。從剪輯、美編、品牌視覺做到 <em>APP 遊戲介面</em>，也畫活動視覺和角色插畫。現在是遊戲公司的<em>行銷編輯</em>，經營多平台社群內容。</p>
+      <div class="facts">
+        <div class="fact"><span class="caps">學歷</span><div class="small" data-i18n>私立亞洲大學<br>數位媒體設計系 遊戲設計組｜2011–2015 畢業</div></div>
+        <div class="fact"><span class="caps">專長</span><div class="tags"><span class="tag">APP UI</span><span class="tag">影片剪輯</span><span class="tag">網頁設計</span><span class="tag">2D 概念設計</span></div></div>
+        <div class="fact"><span class="caps">工具</span><div class="tgroups">
+          <div class="tgroup"><small>繪圖・設計</small><div class="tags"><span class="tag">Photoshop</span><span class="tag">Clip Studio Paint</span></div></div>
+          <div class="tgroup"><small>影片・動態</small><div class="tags"><span class="tag">Premiere</span><span class="tag">After Effects</span><span class="tag">Filmora</span></div></div>
+          <div class="tgroup"><small>AI 工具</small><div class="tags"><span class="tag">ChatGPT</span><span class="tag">Claude</span><span class="tag">Gemini</span></div></div>
+          <div class="tgroup"><small>筆記・整理</small><div class="tags"><span class="tag">Obsidian</span></div></div>
+        </div></div>
+        <div class="fact"><span class="caps">證照</span><div class="small" data-i18n>Autodesk 3ds Max 視覺開發國際認證<br>TQC-IP 影像處理 Photoshop 實用級</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="career">
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <span class="num" data-rv>(02)</span>
+        <h2 class="title" data-split>Career</h2>
+        <p class="caps" data-rv>工作經歷</p>
+      </div>
+      <a class="pill ghost" href="works.html" data-rv>看這些工作的作品 →</a>
+    </div>
+    <div class="job">
+      <div class="yr">2025–<small>NOW</small></div>
+      <div>
+        <h3>牛角科技股份有限公司</h3>
+        <p class="role">行銷編輯</p>
+        <p class="small">線上遊戲的行銷內容編輯，經營多平台社群，頻道有數萬追蹤。</p>
+        <div class="tags"><span class="tag">行銷</span><span class="tag">內容編輯</span></div>
+      </div>
+      <a class="pill ghost" href="marketing.html">行銷</a>
+    </div>
+    <div class="job">
+      <div class="yr">2024–25<small>1 YR 3 MOS</small></div>
+      <div>
+        <h3>向上國際科技股份有限公司</h3>
+        <p class="role">美術設計師</p>
+        <p class="small">APP 遊戲台版、日版的介面與活動：節慶換皮、Loading、活動頁、拼圖卡包、頭像框、新手引導，以及角色插畫和 UI 動畫。</p>
+        <div class="tags"><span class="tag">遊戲 UI</span><span class="tag">換皮</span><span class="tag">角色插畫</span><span class="tag">UI 動畫</span></div>
+      </div>
+      <a class="pill ghost" href="works.html#up">作品</a>
+    </div>
+    <div class="job">
+      <div class="yr">2022–23<small>1 YR 1 MO</small></div>
+      <div>
+        <h3>鼎順科技有限公司</h3>
+        <p class="role">平面設計／美編</p>
+        <p class="small">線上娛樂品牌的官網視覺、活動 Banner、節慶賀卡、IG 社群貼文，以及品牌宣傳影片。</p>
+        <div class="tags"><span class="tag">品牌官網</span><span class="tag">Banner</span><span class="tag">社群</span><span class="tag">宣傳影片</span></div>
+      </div>
+      <a class="pill ghost" href="works.html#ds">作品</a>
+    </div>
+    <div class="job">
+      <div class="yr">2015–22<small>7 YRS 9 MOS</small></div>
+      <div>
+        <h3>帥狗娛樂工作室</h3>
+        <p class="role">剪輯人員、美編</p>
+        <p class="small">影片剪輯與遊戲 UI 設計、原畫繪製。</p>
+        <div class="tags"><span class="tag">剪輯</span><span class="tag">遊戲 UI</span><span class="tag">原畫</span></div>
+      </div>
+      <span></span>
+    </div>
+  </div>
+</section>
+
+<section id="works">
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <span class="num" data-rv>(03)</span>
+        <h2 class="title" data-split>Designs</h2>
+        <p class="caps" data-rv>設計分類</p>
+      </div>
+      <a class="pill" href="works.html" data-rv>全部作品 →</a>
+    </div>
+    <div class="files" id="files"></div>
+  </div>
+</section>
+
+<section id="marketing">
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <span class="num" data-rv>(04)</span>
+        <h2 class="title" data-split>Marketing</h2>
+        <p class="caps" data-rv>行銷內容</p>
+      </div>
+      <a class="pill" href="marketing.html" data-rv>看行銷內容 →</a>
+    </div>
+    <a class="cat cat-wide" id="mkCard" href="marketing.html">
+      <span class="arrow">↗</span>
+      <span class="label"><b>社群視覺內容與跨平台營運</b><span class="caps">社群・手機通知・Email</span></span>
+      <span class="cat-stats">
+        <span><b data-count="40000">40,000+</b><small>Telegram 頻道訂閱</small></span>
+        <span><b data-count="4000">4,000+</b><small>Instagram 粉絲</small></span>
+        <span><b data-count="3000">3,000+</b><small>X 粉絲</small></span>
+        <span><b data-count="600">600+</b><small>Telegram 累計貼文</small></span>
+      </span>
+    </a>
+  </div>
+</section>
+
+<footer class="end" id="contact">
+  <!-- 空心大字：把字往外擴一圈再挖掉字本身，字型裡重疊的筆畫不會露出來 -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="hollow" x="-2%" y="-5%" width="104%" height="110%" color-interpolation-filters="sRGB"><feMorphology in="SourceGraphic" operator="dilate" radius="2" result="wide"/><feComposite in="wide" in2="SourceAlpha" operator="out"/></filter><filter id="hollow-sm" x="-2%" y="-5%" width="104%" height="110%" color-interpolation-filters="sRGB"><feMorphology in="SourceGraphic" operator="dilate" radius="1" result="wide"/><feComposite in="wide" in2="SourceAlpha" operator="out"/></filter></svg>
+  <p class="kicker" style="margin-bottom:22px" data-rv>Let's make something</p>
+  <div class="marq"><div class="track"><p class="mega">Contact Me</p><p class="mega o">Contact Me</p><p class="mega">Contact Me</p><p class="mega o">Contact Me</p></div></div>
+  <div class="row" data-rv>
+    <a class="pill big" id="mailMe">聯絡我 →</a>
+    <button class="pill big ghost" id="copyMail" type="button">複製信箱</button>
+    <a class="pill big ghost" href="https://pda.104.com.tw/profile/share/iaLlYBVYitepWPgHGqwIICwpiJsIbpVd" target="_blank" rel="noopener">我的履歷 ↗</a>
+  </div>
+</footer>
+<div class="foot"><span class="caps">© 2026 Lee Yunyun</span><a class="caps" href="#top" data-wipe-top="LEE YUNYUN">回到置頂 ↑</a><span class="caps">Taichung, Taiwan</span></div>
+<nav class="hidx" id="hIdx" aria-label="首頁目錄" data-rv><a href="#about">About</a><a href="#career">Career</a><a href="#works">Designs</a><a href="#marketing">Marketing</a><a href="#contact">Contact</a></nav>
+
+<script type="module">
+import { tilt, t, pageIndex, smoothTo, tapNext } from './motion.js?v=137';
+
+// 開場：同一次瀏覽只播一次
+const intro = document.getElementById('intro');
+let seen = false;
+try { seen = sessionStorage.getItem('intro') === '1'; sessionStorage.setItem('intro', '1'); } catch (e) {}
+if (seen || document.documentElement.classList.contains('wipecover') || matchMedia('(prefers-reduced-motion: reduce)').matches) intro.remove();
+else {
+  document.documentElement.style.setProperty('--intro', '1.9s');
+  // 開場收起來之後，第一屏的東西才開始進場
+  document.querySelectorAll('.hero [data-rv], .hero .split, #hIdx').forEach(el => el.style.setProperty('--base', '1.9s'));
+  setTimeout(() => intro.remove(), 2600);
+}
+
+// 第一屏的東西不等捲動，載入就進場（貼著畫面底部的按鈕捲不進觸發範圍）
+requestAnimationFrame(() => requestAnimationFrame(() => document.querySelectorAll('.hero [data-rv], .hero .split, #hIdx').forEach(el => el.classList.add('in'))));
+
+// 跑馬燈內容（重複十次，跑一半剛好接上；前五次要比寬螢幕還長，後面才不會空掉）
+const words = a => Array(10).fill(a).flat().map(w => `<span>${w}</span>`).join('');
+document.getElementById('rA').innerHTML = words(['Game UI', 'Visual Design', 'Character Art', 'Motion', 'Banner', 'Marketing']);
+document.getElementById('rB').innerHTML = words(['遊戲介面', '活動主視覺', '角色插畫', '動態影像', '行銷編輯', '品牌視覺'].map(t));
+
+// 主視覺轉場：捲 60% 螢幕高的距離內，背景放大到 1.5 倍；
+// 前景依序消失：英文小字和中文職稱 → 最後才是主標題
+const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const HERO_PARTS = [
+  [document.getElementById('hKick'), 0, 0.3, 0],
+  [document.getElementById('hSub'), 0, 0.3, 0],
+  [document.getElementById('hMain'), 0.4, 1, 0.6]
+];
+let heroP = -1;
+function onScroll() {
+  const p = Math.min(1, Math.max(0, scrollY / (innerHeight * 0.6)));
+  if (p === heroP) return;
+  heroP = p;
+  for (const [el, from, to, blur] of HERO_PARTS) {
+    const q = Math.min(1, Math.max(0, (p - from) / (to - from)));
+    if (q) el.style.transition = 'none';   // 進場的 .9s 過渡不能留著，淡出才會跟著捲動走
+    el.style.opacity = 1 - q;
+    el.style.visibility = q === 1 ? 'hidden' : '';
+    if (calm) continue;
+    if (blur) el.style.filter = q ? `blur(${q * blur}vw)` : '';
+    el.style.transform = q ? `scale(${1 - q * 0.1})` : '';
+  }
+  // 背景本身就很柔，只放大不另外模糊（動態畫面每張都模糊太吃效能）
+  const bg = document.getElementById('fluid');
+  if (bg && !calm) bg.style.transform = p ? `scale(${1 + p * 0.5})` : '';
+}
+addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+
+// 關於我、工作經歷：每一列跟著捲動依序從左邊滑進來，捲到哪就停在哪。
+// 以整段算進度：第一列頂端到畫面 95% 高時開始，整段的中線到畫面 65% 高時全部歸位
+const slideGroups = ['#about .lead, #about .fact', '#career .job'].map(q => [...document.querySelectorAll(q)]);
+function slideIn() {
+  if (calm) return;
+  const vh = innerHeight;
+  for (const rows of slideGroups) {
+    const top = Math.min(...rows.map(el => el.getBoundingClientRect().top));
+    const bottom = Math.max(...rows.map(el => el.getBoundingClientRect().bottom));
+    const startAt = vh * 0.95, endAt = vh * 0.65 - (bottom - top) / 2;   // 第一列頂端的位置
+    const p = (startAt - top) / (startAt - endAt);
+    rows.forEach((el, k) => {
+      // 每列佔整段進度的一半，依序錯開，最後一列剛好在進度 1 滑完
+      const from = rows.length > 1 ? k / (rows.length - 1) * 0.5 : 0;
+      const q = Math.min(1, Math.max(0, (p - from) / 0.5));
+      const x = (1 - (1 - q) ** 2) * 100 - 100;   // 開頭快、接近定位時放慢
+      // 右欄只在自己的欄位裡滑，不會壓過左邊的大段文字
+      el.style.transform = q === 1 ? '' : el.matches('.fact') ? `translate3d(${x * 1.05}%, 0, 0)` : `translate3d(${x}vw, 0, 0)`;
+    });
+  }
+}
+addEventListener('scroll', slideIn, { passive: true });
+addEventListener('resize', slideIn);
+slideIn();
+
+const mkCard = document.getElementById('mkCard'), mkTexts = [...mkCard.querySelectorAll('.label b, .label .caps, .cat-stats > span')];
+tilt(mkCard, 2);
+
+// 行銷卡跟著捲動從左邊淡入，捲到哪就停在哪；卡片先進來，裡面的文字接著一項一項從左邊淡入
+// 卡片頂端到畫面 95% 高時開始，到 50% 高時全部歸位；點目錄跳到這一段時也一定已經歸位
+// 數字進來時從 0 跳到定值；捲回去完全消失後，下次進來再跳一次
+function countUp(el) {
+  const to = +el.dataset.count, t0 = performance.now(), run = el.countRun = {};
+  (function tick(now) {
+    if (el.countRun !== run) return;
+    const q = Math.min(1, (now - t0) / 1400);
+    el.textContent = Math.round(to * (1 - (1 - q) ** 3)).toLocaleString('en-US') + '+';
+    if (q < 1) requestAnimationFrame(tick);
+  })(t0);
+}
+function mkIn() {
+  if (calm) return;
+  const top = mkCard.getBoundingClientRect().top, startAt = innerHeight * .95;
+  const endAt = Math.max(innerHeight * .5, top - document.getElementById('marketing').getBoundingClientRect().top + 67);
+  const p = (startAt - top) / (startAt - endAt);
+  const show = (el, from, span, dist) => {
+    const q = Math.min(1, Math.max(0, (p - from) / span));
+    el.style.opacity = q === 1 ? '' : q;
+    el.style.translate = q === 1 ? '' : `calc(${(1 - q) ** 2} * ${dist}) 0`;   // 開頭快、接近定位時放慢
+    return q;
+  };
+  show(mkCard, 0, .55, '-40vw');
+  mkTexts.forEach((el, k) => {
+    const q = show(el, .3 + k * .08, .3, '-60px'), num = el.querySelector('[data-count]');
+    if (!num) return;
+    if (q > .35 && !num.countRun) countUp(num);
+    else if (!q && num.countRun !== null) { num.countRun = null; num.textContent = '0+'; }
+  });
+}
+addEventListener('scroll', mkIn, { passive: true });
+addEventListener('resize', mkIn);
+mkIn();
+
+// 聯絡我、複製信箱：信箱不顯示在畫面上，也不直接寫在網頁原始碼裡，減少被自動抓走收到垃圾信
+// 有些人的電腦沒設定寄信軟體，按聯絡我不會有反應，所以另外給複製。不能複製就改開寄信
+const mail = ['iopbnm15', 'gmail.com'].join('@'), copyMail = document.getElementById('copyMail');
+document.getElementById('mailMe').href = 'mailto:' + mail;
+copyMail.addEventListener('click', () => navigator.clipboard.writeText(mail).then(() => {
+  const labels = copyMail.querySelectorAll('.roll > span');
+  labels.forEach(el => { el.textContent = t('已複製 ✓'); });
+  setTimeout(() => labels.forEach(el => { el.textContent = t('複製信箱'); }), 1800);
+}, () => { location.href = 'mailto:' + mail; }));
+
+// 底部目錄：段落頂端過了畫面一半就算到那一段；捲到底一定是最後一段（Contact 不夠高，頂端可能到不了一半）
+const idxSecs = ['about', 'career', 'works', 'marketing', 'contact'].map(id => document.getElementById(id));
+pageIndex(document.getElementById('hIdx'), () =>
+  scrollY + innerHeight >= document.documentElement.scrollHeight - 4 ? idxSecs.length - 1
+    : idxSecs.findLastIndex(s => s.getBoundingClientRect().top <= innerHeight * .5));
+
+// 手機：開場看不到導覽列，往下滑才出現（樣式在 style.css）
+const nav = document.querySelector('.nav');
+const navWait = () => {
+  nav.classList.toggle('waiting', scrollY < 40);
+  if (scrollY < 40) nav.querySelector('.nav-menu').open = false;
+};
+addEventListener('scroll', navWait, { passive: true });
+navWait();
+
+// 手機：點畫面跳到下一段，最後一段再點回到最上面
+tapNext(() => {
+  const navH = nav.offsetHeight, atEnd = scrollY + innerHeight >= document.documentElement.scrollHeight - 4;
+  const next = atEnd ? null : idxSecs.find(s => s.getBoundingClientRect().top > navH + 16);
+  smoothTo(next ? next.getBoundingClientRect().top + scrollY - navH : 0);
+});
+
+// 作品分類：三張紙。圖的左邊挖成直書大字，字腳和右邊的圖連在一起（word 是大字，c 是紙色，tint 是蓋在霧沙上的色票色，at 是封面裁切時對齊的位置）
+const FILES = [
+  { key: 'ui', word: 'GAME UI', name: t('遊戲 UI'), note: t('APP UI・APP 橫版 UI・頭像框'), img: 'works/67c3fa2f37.webp', c: '#f2c29a', tint: '#b35a37', at: '50% 50%' },
+  { key: 'banner', word: 'VISUAL', name: t('品牌與活動視覺'), note: t('Banner・網站・廣告＆社群圖'), img: 'works/cover/art.webp', c: '#efb188', tint: '#97452c', at: '50% 55%' },
+  { key: 'motion', word: 'MOTION', name: t('動態與影片'), note: t('APP 動態 UI・動態廣告'), img: 'works/23b46c21b3.webp', c: '#f4d9c1', tint: '#883823', at: '50% 50%' },
+  { key: 'webgame', word: 'WEB GAME', name: t('網頁遊戲'), note: t('恐怖逃脫遊戲《背後》'), img: 'works/behind/close.webp', c: '#f8e6bd', tint: '#6c2f0d', at: '50% 50%' }
+];
+const box = document.getElementById('files');
+box.innerHTML = FILES.map(f => `<a class="file" href="works.html#${f.key}" style="--c:${f.c};--tint:${f.tint};--pos:${f.at}"><span class="file-pic" data-word="${f.word}"><img src="${f.img}" alt="" loading="lazy" decoding="async"><canvas class="file-clear"></canvas><span class="file-arrow">↗</span><span class="file-label"><b>${f.name}</b><span class="caps">${f.note}</span></span></span></a>`).join('');
+const files = [...box.querySelectorAll('.file')];
+files.forEach(el => tilt(el, 3));
+
+// 三張卡跟著捲動從左邊淡入，捲到哪就停在哪。卡片頂端到畫面 95% 高時開始，到 50% 高時歸位；點目錄跳到這一段時也一定已經歸位
+// 右邊的卡先動，移動中才不會疊到已經停好的卡；手機版上下排，每張各自算，不用錯開
+function filesIn() {
+  if (calm) return;
+  const tops = files.map(el => el.getBoundingClientRect().top), startAt = innerHeight * .95;
+  const endAt = Math.max(innerHeight * .5, tops[0] - document.getElementById('works').getBoundingClientRect().top + 67);
+  const stacked = tops[2] - tops[0] > 50, step = .4 / (files.length - 1);
+  files.forEach((el, k) => {
+    const from = stacked ? 0 : (files.length - 1 - k) * step, p = (startAt - tops[k]) / (startAt - endAt);
+    const q = Math.min(1, Math.max(0, (p - from) / (stacked ? 1 : .6)));
+    el.style.opacity = q === 1 ? '' : q;
+    el.style.translate = q === 1 ? '' : `${((1 - q) ** 2) * -40}vw 0`;   // 開頭快、接近定位時放慢
+  });
+}
+addEventListener('scroll', filesIn, { passive: true });
+addEventListener('resize', filesIn);
+filesIn();
+
+// 滑鼠滑過的地方像背景的水流一樣露出圖：範圍很大、邊緣很淡，裡面是連續扭動的色帶；滑鼠附近的色帶會被推開，走過的地方慢慢擴散消失
+if (matchMedia('(hover: hover) and (pointer: fine)').matches) box.querySelectorAll('.file').forEach(el => {
+  const COLS = 56, LIFE = 2200, STEP = .14, MAX = 8;   // 長度都以格子寬度為 1
+  const c = el.querySelector('.file-clear'), x = c.getContext('2d'), img = el.querySelector('.file-pic > img');
+  const field = document.createElement('canvas'), fx = field.getContext('2d');
+  const [ax, ay] = el.style.getPropertyValue('--pos').split(' ').map(v => parseFloat(v) / 100);
+  let w = 0, h = 0, rows = 0, shape, pts = [], mx = 0, my = 0, tx = 0, ty = 0, over = false, grow = 0, running = false;
+
+  function paint(now) {
+    const t = calm ? 0 : now / 1000, ramp = (a, b, v) => { const q = Math.min(1, Math.max(0, (v - a) / (b - a))); return q * q * (3 - 2 * q); };
+    // 走過的點會慢慢變大變淡，像水暈開
+    const live = pts.map(p => { const age = (now - p.born) / LIFE; return { x: p.x, y: p.y, k: (1 - age) ** 2 * .75, r: .42 + age * .38 }; });
+    const hx = mx / w, hy = my / w;
+    for (let j = 0; j < rows; j++) for (let i = 0; i < COLS; i++) {
+      const u = i / COLS, v = j / COLS;
+      // 座標先扭過再量距離，範圍的邊緣才會是流動的，不是圓
+      const wu = u + .11 * Math.sin(v * 3.1 + t * .42) + .05 * Math.sin((u + v) * 6.5 - t * .6);
+      const wv = v + .11 * Math.sin(u * 3.7 - t * .35) + .05 * Math.sin((u - v) * 5.5 + t * .5);
+      const near = over ? Math.max(0, 1 - ((wu - hx) ** 2 + (wv - hy) ** 2) / .3) ** 2 * grow : 0;
+      let sum = near * 1.15;
+      for (const p of live) {
+        const d = ((wu - p.x) ** 2 + (wv - p.y) ** 2) / (p.r * p.r);
+        if (d < 1) sum += p.k * (1 - d) ** 2;
+      }
+      // 連續的水流色帶，滑鼠附近的色帶被推開（near 改變相位）
+      const wave = wu * 5.2 + wv * 3.4 + 1.5 * Math.sin(wv * 2.6 + t * .38) + 1.1 * Math.sin(wu * 3.3 - t * .3) + near * 2.6 + t * .35;
+      const band = ramp(.12, .82, .5 + .5 * Math.sin(wave));
+      shape.data[(j * COLS + i) * 4 + 3] = ramp(.04, .75, sum) * (.3 + .7 * band) * 209;   // 最多 82%，底下的霧沙還透得出來
+    }
+    fx.putImageData(shape, 0, 0);
+    x.globalCompositeOperation = 'source-over';
+    x.clearRect(0, 0, w, h);
+    x.drawImage(field, 0, 0, w, h);
+    x.globalCompositeOperation = 'source-in';
+    // 位置和底下霧面的圖完全一樣（object-fit: cover，再放大 1.12）
+    const s = Math.max(w / img.naturalWidth, h / img.naturalHeight), dw = img.naturalWidth * s, dh = img.naturalHeight * s;
+    x.save();
+    x.translate(w / 2, h / 2);
+    x.scale(1.12, 1.12);
+    x.translate(-w / 2, -h / 2);
+    x.drawImage(img, (w - dw) * ax, (h - dh) * ay, dw, dh);
+    x.restore();
+  }
+
+  function frame(now) {
+    if (over) {
+      const k = calm ? 1 : .07;
+      mx += (tx - mx) * k; my += (ty - my) * k; grow = Math.min(1, grow + .025);
+      const last = pts[pts.length - 1];
+      if (!last || Math.hypot(mx / w - last.x, my / w - last.y) > STEP) pts.push({ x: mx / w, y: my / w, born: now });
+    }
+    pts = pts.filter(p => now - p.born < LIFE).slice(-MAX);
+    if (over || pts.length) { paint(now); requestAnimationFrame(frame); }
+    else { x.clearRect(0, 0, w, h); running = false; }
+  }
+
+  const aim = e => { const b = c.getBoundingClientRect(); tx = e.clientX - b.left; ty = e.clientY - b.top; };
+  el.addEventListener('pointerenter', e => {
+    if (c.clientWidth !== w || c.clientHeight !== h) {
+      w = c.width = c.clientWidth; h = c.height = c.clientHeight;
+      rows = Math.round(COLS * h / w);
+      field.width = COLS; field.height = rows;
+      shape = fx.createImageData(COLS, rows);
+    }
+    aim(e); mx = tx; my = ty; over = true; grow = 0;
+    if (!running && img.complete) { running = true; requestAnimationFrame(frame); }
+  });
+  el.addEventListener('pointermove', aim);
+  el.addEventListener('pointerleave', () => { over = false; });
+});
+
+// 大字要照格子大小畫，CSS 的遮罩也吃不到網頁字型，所以用 canvas 畫成遮罩
+// 三張用同一個字級，左邊線才會對齊；再加大字距，讓每個字的頭尾都剛好貼齊圖的上下緣
+function cutWord(el) {
+  const w = el.clientWidth, h = el.clientHeight, word = el.dataset.word;
+  if (!w || !h) return;
+  const dpr = Math.min(devicePixelRatio || 1, 2), c = Object.assign(document.createElement('canvas'), { width: w * dpr, height: h * dpr }), x = c.getContext('2d');
+  x.scale(dpr, dpr);
+  x.font = '900 100px Outfit, sans-serif';
+  const ink = t => { const m = x.measureText(t); return m.actualBoundingBoxLeft + m.actualBoundingBoxRight; };
+  // 用所有字母裡最高的算（G、O 這類圓字會比平頭字高一點），圓字才不會被畫布裁掉
+  const cap = Math.max(...FILES.flatMap(f => [...f.word]).map(ch => x.measureText(ch).actualBoundingBoxAscent)) / 100;
+  // 字級跟其他卡一樣；WEB GAME 字數多，只有它自己縮小才放得下，其他卡的字才不會跟著變小變散
+  const size = Math.min(100 * h / ink(word), ...FILES.filter(f => f.word !== 'WEB GAME').map(f => 100 * h / ink(f.word)), w * .5 / cap), split = Math.ceil(size * cap), mid = Math.round(split / 2 * dpr) / dpr;   // 圖的起點對齊螢幕像素，螢幕縮放不是整數倍時才不會有半透明的一欄
+  x.font = `900 ${size}px Outfit, sans-serif`;
+  // 一個字母一個字母畫，用前面字串的寬度算位置，字母之間的緊密度才會保留
+  // 平頭字（M、I、L）的頭尾多出一點點讓畫布裁掉，才會和圖的邊緣切齊，不會差一兩個像素；圓字不裁
+  const n = word.length, pos = i => x.measureText(word.slice(0, i)).width, over = ch => /[GOCSQU]/.test(ch) ? 0 : 1, head = over(word[0]), tail = over(word[n - 1]);
+  const start = x.measureText(word[0]).actualBoundingBoxLeft, end = x.measureText(word[n - 1]).actualBoundingBoxRight;
+  const gap = (h + head + tail - start - pos(n - 1) - end) / (n - 1);
+  // 字尾的 E：字型裡三條橫線不一樣長，中間最短，這裡把中間和上面那條接到頂，三條才會一起貼平圖的邊緣（數字是這兩條的上下緣，以字級為 1）
+  const place = (ctx, kind) => {
+    ctx.translate(split, h);
+    ctx.rotate(-Math.PI / 2);
+    [...word].forEach((ch, i) => {
+      const a = start - head + pos(i) + gap * i;
+      ctx[kind + 'Text'](ch, a, 0);
+      if (i === n - 1 && ch === 'E') for (const [top, bottom] of [[-.71, -.545], [-.445, -.28]]) ctx[kind + 'Rect'](a + size * .5, top * size, h, (bottom - top) * size);
+    });
+  };
+  // 圖從字的中央開始：左半邊的字挖在紙上，右半邊的字疊在圖上，靠下面那層外框分出來
+  x.beginPath();
+  x.roundRect(mid, 0, w - mid, h, [10, 0, 0, 10]);
+  x.fill();
+  place(x, 'fill');
+  // 外框：只在圖上的那半邊、字的外側。先描粗邊，再把字的範圍整個擦掉，字型裡重疊的筆畫也不會露出來
+  // 再從遮罩挖掉這一圈，露出來的就是底下真正的紙，紋理和紙面一模一樣
+  const ring = Object.assign(document.createElement('canvas'), { width: c.width, height: c.height }), y = ring.getContext('2d');
+  y.scale(dpr, dpr);
+  y.font = x.font;
+  y.lineWidth = Math.max(2, size * .022) * 2;
+  y.lineJoin = 'miter';
+  y.miterLimit = 2;
+  y.save();
+  y.beginPath();
+  y.rect(mid, 0, w - mid, h);
+  y.clip();
+  place(y, 'stroke');
+  y.restore();
+  // 擦字的時候不能再受上面的範圍限制，不然範圍邊緣那一欄擦不乾淨，字裡面會留下一條細線
+  y.globalCompositeOperation = 'destination-out';
+  place(y, 'fill');
+  x.setTransform(1, 0, 0, 1, 0, 0);
+  x.globalCompositeOperation = 'destination-out';
+  x.drawImage(ring, 0, 0);
+  el.style.setProperty('--split', split + 'px');
+  const url = `url(${c.toDataURL()})`;
+  el.style.webkitMaskImage = url;
+  el.style.maskImage = url;
+}
+document.fonts.load('900 100px Outfit').then(() => {
+  const ro = new ResizeObserver(es => es.forEach(e => cutWord(e.target)));
+  box.querySelectorAll('.file-pic').forEach(el => ro.observe(el));
+});
+dispatchEvent(new Event('contentready'));
+</script>
+</body>
+</html>

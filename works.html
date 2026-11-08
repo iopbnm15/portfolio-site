@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>設計｜李昀芸</title>
+<meta name="description" content="李昀芸的設計作品：手機遊戲 UI、角色插畫、UI 動畫、品牌官網、活動 Banner 與宣傳影片。">
+<meta property="og:title" content="設計｜李昀芸 LEE YUNYUN">
+<meta property="og:description" content="手機遊戲 UI、角色插畫、UI 動畫、品牌視覺與宣傳影片。">
+<meta property="og:image" content="hero.webp">
+<meta name="theme-color" content="#8a3f14">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23f2b33d'/%3E%3Ctext x='32' y='43' font-family='Arial Black,sans-serif' font-size='30' font-weight='900' text-anchor='middle' fill='%236c2f0d'%3EY%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=184">
+<script>
+// 從另一頁蓋著布幕過來：第一個畫面就先蓋滿霧沙玻璃（樣式在 style.css 最後）
+try {
+  const w = sessionStorage.getItem('wipe'), h = document.documentElement;
+  if (w) { h.classList.add('wipecover', 'wipesheet'); h.dataset.wipe = w; }
+} catch (e) {}
+</script>
+<script>
+// 英文版：內容換好字才顯示，不會先閃一下中文（1.5 秒是保險）
+try {
+  const l = new URLSearchParams(location.search).get('lang') || localStorage.getItem('lang');
+  if (l === 'en') { document.documentElement.lang = 'en'; document.documentElement.classList.add('en-wait'); setTimeout(() => document.documentElement.classList.remove('en-wait'), 1500); }
+} catch (e) {}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+</head>
+<body>
+
+<nav class="nav">
+  <details class="nav-menu">
+    <summary aria-label="選單"><i></i><i></i><i></i></summary>
+    <div>
+      <a class="pill" href="index.html">首頁 Home</a>
+      <a class="pill" href="index.html#about">關於 About</a>
+      <a class="pill" href="index.html#career">經歷 Career</a>
+      <a class="pill" href="works.html">設計 Designs</a>
+      <a class="pill" href="marketing.html">行銷 Marketing</a>
+      <a class="pill" href="index.html#contact">聯絡 Contact</a>
+    </div>
+  </details>
+  <div class="group left">
+    <a class="pill" href="index.html">首頁 Home</a>
+    <a class="pill" href="index.html#about">關於 About</a>
+    <a class="pill" href="index.html#career">經歷 Career</a>
+    <a class="pill" href="marketing.html">行銷 Marketing</a>
+  </div>
+  <a class="badge" href="index.html"><b>LEE YUNYUN</b><small>DESIGN</small></a>
+  <div class="group right">
+  </div>
+</nav>
+
+<section class="whead">
+  <div class="wrap">
+    <p class="kicker" style="text-align:left;margin-bottom:16px" data-rv>Selected designs 2022–2026 · <span class="count" id="count">0</span> <span id="countWord">pieces</span></p>
+    <h1 class="title" data-split>My Designs</h1>
+  </div>
+</section>
+
+<!-- 分頁列：總覽和格狀時黏在導覽列下面，換分類時一直看得到 -->
+<div class="wbar" id="wbar">
+  <div class="wrap">
+    <div class="head" data-rv>
+      <div class="filters" id="filters"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 總覽：這一類的作品像一手牌，從下方的支點展開成扇形；捲動或拖曳換牌，點中間那張進逐頁。網頁遊戲和還沒放作品的分類用 bento -->
+<section class="over" id="over">
+  <div class="fan" id="fan">
+    <div class="fstage" id="fstage">
+      <div class="fcards" id="fcards"></div>
+      <div class="fcap" id="fcap"></div>
+    </div>
+  </div>
+  <div class="wrap"><div class="bento" id="bento"></div></div>
+</section>
+
+<!-- 逐頁：一次一件。中間一疊傾斜的卡片，捲動時往上流；右邊是作品名稱清單，左邊是這件的資料 -->
+<section class="dial" id="dial" hidden>
+  <div class="dstage deck" id="dstage">
+    <div class="dtop"><div class="dleft"><button class="pill dback" data-view="over">← 總覽</button><div class="dtabs" id="dtabs" role="tablist" aria-label="作品分類"></div></div><span class="caps"><span class="dhint">捲動或 ↑ ↓ 換下一件・Enter 放大</span><span id="didx">00 / 00</span></span></div>
+    <dl class="dmeta" id="dmeta"></dl>
+    <div class="cards" id="cards"></div>
+    <ol class="dlist" id="dlist"></ol>
+    <div class="dinfo" id="dinfo">
+      <div class="dnumbox"><span class="caps">Selected work</span><b class="dnum" id="dnum">01</b><sup id="dtot">/00</sup></div>
+      <div class="dmob"><h2 id="dtitle">—</h2><p class="caps" id="dcat">—</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="gridview" id="gridview" hidden>
+  <div class="wrap"><div id="list"></div></div>
+</section>
+<div class="foot"><span class="caps">© 2026 Lee Yunyun</span><a class="caps" href="index.html#contact">Contact →</a></div>
+
+<div class="box" id="box" role="dialog" aria-modal="true" aria-label="作品大圖">
+  <button class="pill x" data-act="close">關閉 ✕</button>
+  <button class="pill prev" data-act="prev" aria-label="上一件">←</button>
+  <button class="pill next" data-act="next" aria-label="下一件">→</button>
+  <div class="media" id="media"></div>
+  <p class="caps" id="boxcap"></p>
+</div>
+
+<script type="module">
+import { reveal, splitChars, lite, pic, t as tr, localize, lang, tapNext } from './motion.js?v=137';
+const COS = [
+  { key: 'up', name: tr('向上國際科技'), note: tr('美術設計師｜2024–2025｜手機遊戲台版・日版') },
+  { key: 'ds', name: tr('鼎順科技'), note: tr('平面設計／美編｜2022–2023｜線上娛樂品牌') }
+];
+const CO = Object.fromEntries(COS.map(c => [c.key, c]));
+// 分類照「給claude作品集的」裡的資料夾，一個資料夾一個分頁
+const CATS = { ui: 'APP UI', land: 'APP 橫版 UI', motion: 'APP 動態 UI', frame: '頭像框', art: '原畫', web: '網站', banner: 'Banner', social: '廣告＆社群圖', ad: '動態廣告', webgame: '網頁遊戲' };
+for (const k in CATS) CATS[k] = tr(CATS[k]);
+const SEP = lang === 'en' ? ' · ' : '・';
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let items = [], shown = [], at = 0, filter = 'ui', view = 'over';
+// 重新整理時不要還原舊的捲動位置，免得蓋掉 #up、#ds 的跳轉
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+fetch('works.json?v=133').then(r => r.json()).then(data => {
+  items = data;
+  items.forEach(i => { i.title = tr(i.title); });
+  // 每個分類都列出來：網頁遊戲是專屬介紹頁
+  const used = Object.keys(CATS);
+  const tabs = used.map(k => `<button class="pill ghost" data-f="${k}" role="tab">${CATS[k]}${items.some(i => i.cat === k) ? ` <small>${items.filter(i => i.cat === k).length}</small>` : ''}</button>`).join('');
+  document.getElementById('filters').innerHTML = tabs;
+  document.getElementById('dtabs').innerHTML = tabs;
+  document.getElementById('list').innerHTML = COS.map(c => `
+    <div class="company" data-co="${c.key}">
+      <div class="head" data-rv><div><h2 data-split>${c.name}</h2><p class="caps" style="margin-top:8px">${c.note}</p></div></div>
+      <div class="grid">${items.map((it, i) => it.co !== c.key ? '' : `
+        <button class="item${it.alpha ? ' glass' : ''}" data-i="${i}" data-cat="${it.cat}">
+          ${`<img data-src="${it.alpha ? it.thumb : pic(it.thumb)}" width="${it.w}" height="${it.h}" alt="${it.title}" style="max-width:${it.w * MAX_UP}px" loading="lazy" decoding="async">`}
+          ${it.type === 'video' ? '<span class="play"></span>' : ''}
+          <span class="cap"><span>${it.title}</span><span>${CATS[it.cat]}</span></span>
+        </button>`).join('')}</div>
+    </div>`).join('');
+  document.querySelectorAll('.company h2[data-split]').forEach(splitChars);
+  document.querySelectorAll('#filters .pill, #dtabs .pill, .views .pill').forEach(el => {
+    el.innerHTML = `<span class="roll"><span>${el.innerHTML}</span><span aria-hidden="true">${el.innerHTML}</span></span>`;
+  });
+  // 網址帶 #ui、#web 這類分類就打開那一頁；#up、#ds 是公司，打開那家公司的第一個分類
+  const h = location.hash.slice(1);
+  setFilter(CATS[h] ? h : used.find(k => items.some(i => i.cat === k && i.co === h)) || used[0], true);
+  dispatchEvent(new Event('contentready'));
+});
+
+// 分類列：滑鼠按住可以左右拖動（手機用手指本來就能滑）；拖過就不算點了分類
+document.querySelectorAll('#filters, #dtabs').forEach(bar => {
+  let down = false, moved = false, startX = 0, startLeft = 0;
+  bar.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'mouse' || e.button) return;
+    down = true; moved = false; startX = e.clientX; startLeft = bar.scrollLeft;
+  });
+  addEventListener('pointermove', e => {
+    if (!down) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 5) moved = true;
+    if (moved) { bar.scrollLeft = startLeft - dx; bar.classList.add('dragging'); }
+  });
+  addEventListener('pointerup', () => { down = false; bar.classList.remove('dragging'); });
+  bar.addEventListener('click', e => { if (moved) { e.stopPropagation(); moved = false; } }, true);
+});
+
+// 件數從 0 數上去
+function countTo(n) {
+  const el = document.getElementById('count'), from = +el.textContent, t0 = performance.now();
+  (function tick(t) {
+    const p = Math.min(1, (t - t0) / 700);
+    el.textContent = Math.round(from + (n - from) * (1 - (1 - p) ** 3));
+    if (p < 1) requestAnimationFrame(tick);
+  })(t0);
+}
+
+// 換分類：舊的先縮小淡出，再換上新的、重新一張張進場；逐頁也換成這一類的作品
+function setFilter(f, first) {
+  const from = filter;
+  filter = f;
+  document.querySelectorAll('[data-f]').forEach(b => { b.classList.toggle('on', b.dataset.f === f); b.setAttribute('aria-selected', b.dataset.f === f); });
+  if (!first) history.replaceState(null, '', '#' + f);
+  // 手機上分頁列會橫向捲動，把目前這一頁捲進畫面
+  document.querySelectorAll('#dtabs .on, #filters .on').forEach(on => {
+    const bar = on.parentElement;
+    bar.scrollLeft += on.getBoundingClientRect().left - bar.getBoundingClientRect().left - parseFloat(getComputedStyle(bar).paddingLeft);
+  });
+  const all = [...document.querySelectorAll('.item')];
+  const apply = () => {
+    all.forEach(el => {
+      el.classList.remove('out', 'in');
+      el.hidden = el.dataset.cat !== f;
+    });
+    // 篩完沒東西的公司整段藏起來
+    document.querySelectorAll('.company').forEach(c => c.hidden = !c.querySelector('.item:not([hidden])'));
+    if (view === 'grid') revealGrid();
+    buildDial(all.filter(el => !el.hidden).map(el => +el.dataset.i), first);
+    buildOver(first);
+    countTo(f === 'webgame' ? 1 : order.length);
+    document.getElementById('countWord').textContent = f === 'webgame' || order.length === 1 ? 'piece' : 'pieces';
+  };
+  if (first) return apply();
+  // 在逐頁裡換分類，就回到那一類的總覽
+  // 轉場和按「← 總覽」一樣，只是卡片飛回去時漸變成新分類的第一張
+  if (view === 'dial') return f === from ? exitDial() : exitDial(apply);
+  // 總覽：這一捲牌轉到最左邊離開，再換下一捲從右邊轉進來；分頁列停在原地
+  if (view === 'over') { if (f !== from) reelTo(Object.keys(CATS).indexOf(f) > Object.keys(CATS).indexOf(from) ? 1 : -1, () => { apply(); overTo(-1); }); return; }
+  all.forEach(el => el.classList.add('out'));
+  setTimeout(apply, 260);
+}
+function revealGrid() {
+  document.querySelectorAll('.company .head, .company .split').forEach(reveal);
+  document.querySelectorAll('.item:not([hidden])').forEach(reveal);
+}
+
+function setView(v) {
+  view = v;
+  document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v));
+  document.getElementById('dial').hidden = v !== 'dial';
+  document.getElementById('over').hidden = v !== 'over';
+  document.getElementById('gridview').hidden = v !== 'grid';
+  wbar.hidden = v === 'dial';   // 逐頁上方已經有自己的分頁
+  // 格狀列表的圖等第一次切過來才載，不然一開頁就會多載 124 張圖
+  if (v === 'grid') { document.querySelectorAll('.item img[data-src]').forEach(i => { i.src = i.dataset.src; i.removeAttribute('data-src'); }); revealGrid(); }
+  else if (v === 'dial') layout();
+  // 回到總覽時，停在剛剛逐頁看到的那一件
+  else { layoutFan(); overTo(Math.max(0, active)); }
+  window.lenis?.resize();
+}
+
+/* ───────── 逐頁 ───────── */
+const dial = document.getElementById('dial'), stage = document.getElementById('dstage');
+const cardsEl = document.getElementById('cards'), listEl = document.getElementById('dlist');
+let order = [], cards = [], rows = [], cur = 0, target = 0, active = -1, drawn = null, g = {}, settle;
+
+function buildDial(list, first) {
+  order = list;
+  cardsEl.innerHTML = order.map((i, k) => `<button class="card${items[i].alpha ? ' glass' : ''}" data-k="${k}" aria-label="${items[i].title}" tabindex="-1"><img src="${items[i].alpha ? items[i].thumb : pic(items[i].thumb)}" alt="" loading="lazy" decoding="async">${items[i].type === 'video' ? '<span class="play"></span>' : ''}</button>`).join('');
+  listEl.innerHTML = order.map((i, k) => `<li><button data-row="${k}" tabindex="-1"><small>${CATS[items[i].cat]}</small><b>${items[i].title}</b><span>${CO[items[i].co].name}</span></button></li>`).join('');
+  cards = [...cardsEl.children]; rows = [...listEl.querySelectorAll('li')];
+  active = -1; drawn = null;
+  layout();
+  if (!first) { if (view === 'dial') scrollToIdx(0, true); cur = target = 0; }
+}
+
+// 依畫面大小決定卡片框、清單位置和每捲多少換一件
+function layout() {
+  const w = stage.clientWidth, h = stage.clientHeight, wide = w >= 860;
+  // 手機：作品放大，置中在上方分類列（約 60px）和下方編號標題（約 116px）之間，下一件只從底部露出一點
+  const mt = 60, mb = h - 116, mh = mb - mt - 16;
+  g = wide
+    ? { wide, w, h, cx: w * 0.47, cy: h * 0.52, bw: Math.min(w * 0.4, 680), bh: h * 0.66, gap: h * 0.74, row: 92 }
+    : { wide, w, h, cx: w / 2, cy: (mt + mb) / 2, bw: w - 24, bh: mh, gap: mh * 1.02, row: 0 };
+  g.step = Math.round(Math.min(innerHeight * 0.6, 560));   // 捲多少 px 換下一件
+  stage.classList.toggle('wide', wide);
+  // 每張卡照原圖比例塞進卡片框
+  cards.forEach((c, k) => {
+    const it = items[order[k]], ar = it.w / it.h;
+    let cw = Math.min(g.bw, g.bh * ar, it.w * MAX_UP);
+    c.style.width = cw + 'px'; c.style.height = cw / ar + 'px';
+    c.style.margin = `${-cw / ar / 2}px 0 0 ${-cw / 2}px`;
+  });
+  dial.style.height = `calc(${Math.max(0, order.length - 1) * g.step}px + 100vh)`;
+  drawn = null;
+  window.lenis?.resize();   // 平滑捲動要重新量頁面高度，不然捲不到後面的作品
+}
+addEventListener('resize', () => view === 'dial' ? layout() : view === 'over' && layoutFan());
+
+function frame() {
+  requestAnimationFrame(frame);
+  if (view === 'over') return drawFan();
+  if (view !== 'dial' || !order.length) return;
+  const top = dial.offsetTop - 66;
+  target = Math.min(order.length - 1, Math.max(0, (scrollY - top) / g.step));
+  cur = reduce ? target : cur + (target - cur) * 0.14;
+  if (Math.abs(target - cur) < 0.0005) cur = target;
+  if (drawn === cur) return;
+  drawn = cur;
+
+  // 卡片：目前這件擺正在正中間（滑鼠移上去才傾斜），上一件、下一件往上下翻出去，只露出一角
+  cards.forEach((c, k) => {
+    const d = k - cur, a = Math.abs(d);
+    if (a > 2.2) { c.style.display = 'none'; return; }
+    c.style.display = '';
+    c.style.transform = `translate(${g.cx}px, ${g.cy + d * g.gap}px) perspective(1400px) rotateX(${-d * 22}deg) rotate(${d * 2}deg) scale(${1 - Math.min(a, 2) * 0.12})`;
+    c.style.opacity = g.wide ? Math.max(0, 1 - a * 0.45) : Math.max(0.06, 1 - a);   // 手機上前後張幾乎透明，才不會干擾壓在上面的字
+    c.style.zIndex = 10 - Math.round(a * 3);
+  });
+  // 右邊清單：目前這件停在中間，越遠越淡
+  if (g.wide) {
+    listEl.style.transform = `translateY(${g.h / 2 - (cur + 0.5) * g.row}px)`;
+    rows.forEach((r, k) => {
+      const a = Math.abs(k - cur);
+      r.style.opacity = a > 6 ? 0 : Math.max(0.14, 1 - a * 0.28);
+    });
+  }
+  const a = Math.round(cur);
+  if (a !== active) setActive(a);
+}
+requestAnimationFrame(frame);
+
+// 換到新的一件：清單、資料、編號一起換；停下來一會兒才載原圖或播影片
+let vidTimer;
+function setActive(k) {
+  active = k;
+  cards.forEach((c, j) => c.classList.toggle('on', j === k));
+  rows.forEach((r, j) => r.classList.toggle('on', j === k));
+  const it = items[order[k]], co = CO[it.co], [role, years, about] = co.note.split('｜'), card = cards[k];
+  clearTimeout(vidTimer);
+  cardsEl.querySelectorAll('video').forEach(v => { v.closest('.card').classList.remove('playing'); v.remove(); });
+  vidTimer = setTimeout(() => {
+    if (active !== k) return;
+    if (lite) { card.querySelector('img').src = it.thumb; return; }
+    if (it.type === 'video') {
+      const v = Object.assign(document.createElement('video'), { src: it.src, muted: true, loop: true, playsInline: true, autoplay: true, poster: it.poster });
+      card.prepend(v); v.play().catch(() => {});
+      v.addEventListener('playing', () => card.classList.add('playing'), { once: true });
+    } else {
+      const img = card.querySelector('img'), full = new Image(); full.src = it.src;
+      full.decode().then(() => { img.src = it.src; }).catch(() => {});
+    }
+  }, 450);
+  document.getElementById('dmeta').innerHTML =
+    [['Category', CATS[it.cat]], ['Role', role], ['Company', co.name], ['Year', years], ['Project', about]]
+      .map(([t, v]) => `<div><dt class="caps">${t}</dt><dd>${v}</dd></div>`).join('');
+  document.getElementById('dnum').textContent = String(k + 1).padStart(2, '0');
+  document.getElementById('dtot').textContent = '/' + String(order.length).padStart(2, '0');
+  document.getElementById('dtitle').textContent = it.title;
+  document.getElementById('dcat').textContent = `${CATS[it.cat]}${SEP}${co.name}`;
+  document.getElementById('didx').textContent = `${String(k + 1).padStart(2, '0')} / ${String(order.length).padStart(2, '0')}`;
+  const inf = document.getElementById('dinfo'), meta = document.getElementById('dmeta');
+  [inf, meta].forEach(el => { el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap'); });
+}
+
+function scrollToIdx(k, instant) {
+  const y = dial.offsetTop - 66 + k * g.step;
+  if (window.lenis && !instant) return window.lenis.scrollTo(y, { duration: 0.9, force: true });
+  scrollTo({ top: y, behavior: instant || reduce ? 'instant' : 'smooth' });
+  // 直接跳的時候也要告訴平滑捲動新位置，不然下次一捲會從舊位置滑過來
+  window.lenis?.scrollTo(y, { immediate: true, force: true });
+}
+function goTo(k, instant) { scrollToIdx(Math.min(order.length - 1, Math.max(0, k)), instant); }
+
+// 捲動停下來時，自動對齊最近的一件
+addEventListener('scroll', () => {
+  clearTimeout(settle);
+  settle = setTimeout(() => {
+    if (view !== 'dial' || !order.length) return;
+    const r = dial.getBoundingClientRect();
+    if (r.top > 70 || r.bottom < innerHeight) return;
+    if (Math.abs(target - Math.round(target)) > 0.03) goTo(Math.round(target));
+  }, 160);
+}, { passive: true });
+
+/* ───────── 總覽 ───────── */
+const over = document.getElementById('over'), bento = document.getElementById('bento');
+// 玩法四格的底色（色票 Peach、Melon、Tangerine、Marigold）和字色
+
+function buildOver(init) {
+  const game = filter === 'webgame', hasFan = !game && order.length > 0;
+  fan.hidden = !hasFan; bento.hidden = hasFan;
+  bento.classList.toggle('game', game);
+  if (hasFan) buildFan(init);
+  else {
+    ocs = [];
+    bento.innerHTML = game ? gamePage() : `<div class="tile tintro"><p class="caps">Category · 00 pieces</p><h2>${CATS[filter]}</h2><p class="small">${tr('作品整理中，之後會放上來。')}</p></div>`;
+    if (game) localize(bento);
+    if (init) { bento.classList.add('intro'); setTimeout(() => bento.classList.remove('intro'), 1400); }
+  }
+  tintBar();
+  window.lenis?.resize();
+}
+
+/* ───────── 扇形牌組 ───────── */
+const fan = document.getElementById('fan'), fstage = document.getElementById('fstage');
+const fcardsEl = document.getElementById('fcards'), fcap = document.getElementById('fcap');
+let ocs = [], fcur = 0, fdrawn = null, fg = {}, fon = -1, spread = 1, fanTimer, fdragged = false, fdrag = null, froll = null;
+// 牌是循環的：把距離換算成 -n/2 到 n/2 之間，最後一張的下一張就是第一張
+const wrapD = x => { const n = ocs.length; return ((x % n) + n + n / 2) % n - n / 2; };
+const wrapK = x => { const n = ocs.length; return ((x % n) + n) % n; };
+const FAN_MAX = 2400;   // 一類作品最多佔這麼長的捲動距離，張數多的每張就捲短一點
+
+const MAX_UP = 1.25;   // 圖最多放大的倍數，再大就糊了
+function buildFan(init) {
+  fcardsEl.innerHTML = order.map((i, k) => `<button class="fcard" data-o="${k}" aria-label="${items[i].title}" tabindex="-1" style="display:none"><img alt="" decoding="async" data-src="${items[i].alpha ? items[i].thumb : pic(items[i].thumb)}">${items[i].type === 'video' ? '<span class="play"></span>' : ''}</button>`).join('');
+  ocs = [...fcardsEl.children];
+  fon = -1; fcur = 0; spread = reduce || !init ? 1 : 0;   // 剛開頁時牌從合起來展開
+  layoutFan();
+}
+
+// 牌的大小、支點位置：牌的比例取這一類作品的中位數
+function layoutFan() {
+  if (!ocs.length) return;
+  const nav = document.querySelector('.nav').offsetHeight;
+  const top = nav + (wbar.hidden ? 0 : wbar.offsetHeight);
+  fstage.style.top = top + 'px';
+  fstage.style.height = `calc(100vh - ${top}px)`;
+  const w = fstage.clientWidth, h = fstage.clientHeight, wide = w >= 860;
+  const ars = order.map(i => items[i].w / items[i].h).sort((p, q) => p - q);
+  const ar = Math.min(1.5, Math.max(0.62, ars[ars.length >> 1] || 0.7));
+  // 這一類的圖普遍很小（頭像框）就把整副牌縮小，不然圖在牌上只剩一小點
+  const hs = order.map(i => items[i].h).sort((p, q) => p - q);
+  let ch = Math.min(h * (wide ? 0.66 : 0.58), Math.max(360, hs[hs.length >> 1] * 1.6));
+  const cw = Math.min(ch * ar, w * (wide ? 0.42 : 0.66)); ch = cw / ar;
+  const R = ch * 1.15 + cw * 0.5;   // 牌中心到支點的距離
+  fg = { w, h, cw, ch, R, cx: w / 2, cy: Math.max(26 + ch * 0.54, (h - 110) / 2), step: Math.min(wide ? 170 : 130, FAN_MAX / Math.max(1, ocs.length - 1)),
+         ang: Math.min(17, Math.max(7, Math.atan(cw * 0.56 / R) * 180 / Math.PI)), reach: wide ? 5.4 : 3.4 };
+  ocs.forEach((c, k) => {
+    c.style.width = cw + 'px'; c.style.height = ch + 'px';
+    c.style.margin = `${-ch / 2}px 0 0 ${-cw / 2}px`;
+    // 裁切填滿會放大超過 MAX_UP 的圖：改成完整顯示、不再放大，四周露出玻璃
+    const it = items[order[k]], small = Math.max(cw / it.w, ch / it.h) > MAX_UP, f = Math.min(cw / it.w, ch / it.h, MAX_UP);
+    c.classList.toggle('glass', small || !!it.alpha);
+    c.firstChild.style.cssText = small ? `inset:auto;left:50%;top:50%;width:${it.w * f}px;height:${it.h * f}px;translate:-50% -50%` : '';
+  });
+  fan.style.height = `calc(${Math.max(0, ocs.length - 1) * fg.step}px + 100vh)`;
+  fdrawn = null;
+  window.lenis?.resize();
+}
+
+const fanY = () => fan.getBoundingClientRect().top + scrollY - parseFloat(fstage.style.top);
+function drawFan(snap) {
+  if (!ocs.length || fan.hidden) return;
+  const n = ocs.length;
+  const t = wrapK(fdrag ?? Math.min(n - 1, Math.max(0, (scrollY - fanY()) / fg.step)));
+  const gap = wrapD(t - fcur);   // 走最短的方向，首尾相接時不會倒轉一整圈
+  fcur = reduce || snap || Math.abs(gap) < 0.0005 ? t : wrapK(fcur + gap * 0.14);
+  if (spread < 1) { spread = Math.min(1, spread + (1 - spread) * 0.055 + 0.002); fdrawn = null; }
+  if (froll && performance.now() - froll.t0 >= froll.dur) {
+    const r = froll; froll = null; fdrawn = null;
+    if (r.phase === 'out') { r.done(); return drawFan(); }   // 換好新牌馬上就定位，不然會在左上角閃一格
+  }
+  if (fcur === fdrawn && !froll) return;
+  fdrawn = fcur;
+  const px = fg.cx, py = fg.cy + fg.R;   // 支點
+  const lim = Math.min(fg.reach, n / 2);
+  ocs.forEach((c, k) => {
+    const d = wrapD(k - fcur), a = Math.abs(d);
+    if (a >= lim) { c.style.display = 'none'; return; }
+    if (c.style.display) c.style.display = '';
+    const img = c.firstChild;
+    if (img.dataset.src) { img.src = img.dataset.src; img.removeAttribute('data-src'); }
+    const [extra, fade] = froll ? reelAt((d / lim + 1) / 2) : [0, 1];
+    const deg = d * fg.ang * spread + extra, rad = deg * Math.PI / 180;
+    const near = Math.max(0, 1 - a);   // 越接近正中間越大
+    c.style.transform = `translate(${px + Math.sin(rad) * fg.R}px, ${py - Math.cos(rad) * fg.R - near * fg.ch * 0.03}px) rotate(${deg}deg) scale(${1 + near * 0.08})`;
+    c.style.opacity = Math.min(1, (lim - a) * 2.5) * fade;
+    c.style.zIndex = 100 - Math.round(a * 10);
+    c.style.setProperty('--dim', Math.min(0.62, a * 0.3));
+  });
+  const on = wrapK(Math.round(fcur));
+  if (on !== fon) setFanOn(on);
+}
+
+// 中間換了一張：說明跟著換；停一下才把這張換成清楚一點的圖
+function setFanOn(k) {
+  fon = k;
+  ocs.forEach((c, j) => { c.classList.toggle('on', j === k); c.tabIndex = j === k ? 0 : -1; });
+  const it = items[order[k]];
+  fcap.innerHTML = `<small>${String(k + 1).padStart(2, '0')} / ${String(order.length).padStart(2, '0')}${SEP}${CATS[it.cat]}${SEP}${CO[it.co].name}</small><b>${it.title}</b><span>${tr('捲動或拖曳換下一張・點中間那張看作品')}</span>`;
+  clearTimeout(fanTimer);
+  fanTimer = setTimeout(() => { if (fon === k && lite) ocs[k].firstChild.src = it.thumb; }, 320);
+}
+
+function fanTo(k, instant) {
+  k = wrapK(k);
+  const n = ocs.length, at = Math.min(n - 1, Math.max(0, (scrollY - fanY()) / fg.step));
+  if (Math.abs(k - at) > n / 2) instant = true;   // 跨過首尾直接跳，畫面上牌還是只轉一格
+  const y = fanY() + k * fg.step;
+  if (window.lenis && !instant && !reduce) return window.lenis.scrollTo(y, { duration: 0.7, force: true });
+  scrollTo({ top: y, behavior: 'instant' });
+  window.lenis?.scrollTo(y, { immediate: true, force: true });
+}
+
+// 捲動停下來時對齊最近的一張，中間那張才會立正
+let fanSettle;
+addEventListener('scroll', () => {
+  clearTimeout(fanSettle);
+  fanSettle = setTimeout(() => {
+    if (view !== 'over' || fan.hidden || !ocs.length || flying) return;
+    const t = (scrollY - fanY()) / fg.step;
+    if (t > 0 && t < ocs.length - 1 && Math.abs(t - Math.round(t)) > 0.02) fanTo(Math.round(t));
+  }, 170);
+}, { passive: true });
+
+// 左右拖曳也能換牌，可以一直轉下去；放開時對齊最近的一張
+fcardsEl.addEventListener('pointerdown', e => {
+  if (e.button) return;
+  const x0 = e.clientX, t0 = fcur, perCard = fg.cw * 0.6;
+  fdragged = false;
+  const move = ev => {
+    const dx = ev.clientX - x0;
+    if (!fdragged && Math.abs(dx) < 6) return;
+    fdragged = true;
+    fdrag = t0 - dx / perCard;
+    fdrawn = null;
+  };
+  const up = () => {
+    removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up);
+    if (fdrag === null) return;
+    const k = wrapK(Math.round(fdrag));
+    fdrag = null;
+    fanTo(k);
+  };
+  addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+});
+
+/* ───────── 預載 ───────── */
+// 滑鼠移到分頁上（手機是手指碰到）才預載那一類一開始會看到的牌，每類只載一次；省流量模式不載
+const preloaded = new Set();
+function preloadCat(f) {
+  if (preloaded.has(f) || f === filter || navigator.connection?.saveData) return;
+  preloaded.add(f);
+  const list = items.filter(i => i.cat === f && i.thumb);
+  const first = list.length > 11 ? [...list.slice(0, 6), ...list.slice(-5)] : list;
+  first.forEach(it => { new Image().src = pic(it.thumb); });
+}
+const tabHint = e => { const t = e.target.closest?.('[data-f]'); if (t) preloadCat(t.dataset.f); };
+document.addEventListener('pointerover', tabHint, { passive: true });
+document.addEventListener('pointerdown', tabHint, { passive: true });
+
+/* ───────── 分頁切換：換一捲牌 ───────── */
+// dir 是方向：往後面的分頁，牌轉到最左邊離開、新的從右邊進來；往前面的分頁反過來
+const REEL_OUT = 620, REEL_IN = 850;
+let reelNext = null;   // 轉出去的途中又點了別的分頁，只換成最後點的那一個
+let capOut = null;
+function reelTo(dir, change) {
+  if (reduce) return change();
+  if (froll?.phase === 'out') { reelNext = change; froll.dir = dir; return; }
+  reelNext = change;
+  const after = () => {
+    const c = reelNext; reelNext = null; froll = null;
+    capOut?.cancel(); capOut = null;
+    c();
+    if (!fan.hidden && ocs.length) {
+      froll = { phase: 'in', dir, t0: performance.now(), dur: REEL_IN };
+      fcap.animate([{ opacity: 0, translate: `${dir * 60}px 0` }, { opacity: 1, translate: '0 0' }], { duration: 500, delay: 260, easing: 'ease-out', fill: 'backwards' });
+    } else bento.animate([{ opacity: 0, translate: `${dir * 50}vw 0` }, { opacity: 1, translate: '0 0' }], { duration: 650, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+  };
+  if (!fan.hidden && ocs.length) {
+    froll = { phase: 'out', dir, t0: performance.now(), dur: REEL_OUT, done: after };
+    capOut = fcap.animate([{}, { opacity: 0, translate: `${-dir * 60}px 0` }], { duration: 300, easing: 'ease-in', fill: 'forwards' });
+  } else bento.animate([{}, { opacity: 0, translate: `${-dir * 50}vw 0` }], { duration: 320, easing: 'ease-in' }).finished.then(after);
+}
+// 這張牌這一刻多轉幾度、透明度要乘多少。u 是牌在扇形裡的位置（0 最左、1 最右）
+function reelAt(u) {
+  const { phase, dir, t0, dur } = froll;
+  const p = Math.min(1, (performance.now() - t0) / dur);
+  const q = Math.min(1, Math.max(0, (p - (dir > 0 ? u : 1 - u) * 0.38) / 0.62));   // 靠行進方向的牌先走
+  if (phase === 'out') return [-dir * 150 * q * q, 1 - q ** 4];
+  const e = (1 - q) ** 3;
+  return [dir * 150 * e, 1 - e * e];
+}
+
+/* ───────── 網頁遊戲：《背後》介紹頁 ───────── */
+const SHOTS = [
+  ['close', '牠越近，畫面越壞'],
+  ['paper', '紙條與撕碎的地圖'],
+  ['graffiti2', '牆上的笑臉塗鴉'],
+  ['exit', '通電後的出口']
+];
+let shotIdx = [];
+function gamePage() {
+  // 截圖放進 items 才能共用燈箱；只加一次，也不會被算進分類件數
+  if (!shotIdx.length) shotIdx = SHOTS.map(([n, t]) => items.push({ title: tr(t), cat: 'webgame', type: 'img', src: `works/behind/${n}.webp`, thumb: `works/behind/t/${n}.webp`, w: 1600, h: 900, co: 'up' }) - 1);
+  return `
+  <header class="gp gp-hero">
+    <img src="works/behind/${lite ? 't/' : ''}monster.webp" alt="" decoding="async">
+    <div class="gp-htxt">
+      <p class="caps">Web Game · Horror Maze Escape</p>
+      <h2>背後<small>BEHIND</small></h2>
+      <p class="gp-tag">你得往前走才逃得出去，但牠就在你背後。</p>
+      <a class="pill big" href="games/behind/index.html" target="_blank" rel="noopener">開始遊玩 ↗</a>
+      <small class="gp-status">監修中</small>
+    </div>
+  </header>
+  <section class="gp gp-about">
+    <p class="caps">遊戲介紹</p>
+    <h3>只要你看著牠，牠就不會動。</h3>
+    <p>你在一座沒有燈的設施裡，出口的門沒有電，得先找回三個保險絲。有東西跟著你，你不知道牠在哪裡。牠在你視線裡的時候不會動，你一轉開，牠就會靠近。</p>
+    <p>迷宮每一局隨機生成。遊戲沒有血條，也不會顯示牠的位置，只能靠心跳、雜訊和手電筒判斷牠離你多近。</p>
+  </section>
+  <section class="gp gp-facts">
+    <p class="caps">遊戲資訊</p>
+    <dl>
+    <div><dt class="caps">類型</dt><dd>第一人稱恐怖逃脫</dd></div>
+    <div><dt class="caps">平台</dt><dd>瀏覽器，電腦和手機都能玩</dd></div>
+    <div><dt class="caps">技術</dt><dd>Three.js；材質、怪物模型和音效全部程式即時生成</dd></div>
+    <div><dt class="caps">版本</dt><dd>可玩雛形 v6｜2026</dd></div>
+    </dl>
+  </section>
+  <h3 class="gp gp-h">遊戲截圖 <small>Screenshots</small></h3>
+  ${SHOTS.map(([n, t], k) => `<button class="gp gp-shot" data-shot="${k}" aria-label="${tr('放大：')}${tr(t)}"><span class="gp-img">${`<img src="${pic(`works/behind/t/${n}.webp`)}" width="800" height="450" alt="${t}" loading="lazy" decoding="async">`}</span><b>${t}</b></button>`).join('')}
+  <section class="gp gp-keys">
+    <p class="caps">操作</p>
+    <div><b>電腦</b><span><kbd>W</kbd> 前進</span><span><kbd>S</kbd> 倒退</span><span><kbd>A</kbd><kbd>D</kbd> 側移</span><span><kbd>滑鼠</kbd> 或 <kbd>←</kbd><kbd>→</kbd> 轉身</span><span><kbd>M</kbd> 地圖</span></div>
+    <div><b>手機</b><span>左下拖曳移動</span><span>右邊拖曳轉頭</span><span>右上「地圖」鈕</span><span>建議橫著拿</span></div>
+    <p class="gp-warn">含驚嚇畫面與音效。建議戴耳機遊玩。</p>
+  </section>`;
+}
+
+// 捲到第 k 張；-1 是這一類的開頭（已經在開頭上方就不動）
+const wbar = document.getElementById('wbar');
+// 內容（網頁遊戲介紹）從透明的分頁列後面經過時才加淡淡的底色；扇形牌不會經過，不用加
+function tintBar() {
+  wbar.classList.toggle('tinted', view === 'over' && fan.hidden && over.getBoundingClientRect().top < wbar.getBoundingClientRect().bottom);
+}
+addEventListener('scroll', tintBar, { passive: true });
+function overTo(k) {
+  window.lenis?.resize();   // 剛換內容頁面高度會變，先讓平滑捲動重新量
+  if (k >= 0 && !fan.hidden) { fanTo(k, true); fcur = k; fdrawn = null; return drawFan(true); }
+  const target = fan.hidden ? over : fan;
+  // 沒有牌的分類（網頁遊戲）內容不會自己黏住，要多留分頁列下面的間距，線才不會壓到內容
+  const gap = fan.hidden ? parseFloat(getComputedStyle(wbar).marginBottom) : 0;
+  const y = Math.max(0, target.getBoundingClientRect().top + scrollY - document.querySelector('.nav').offsetHeight - wbar.offsetHeight - gap);
+  if (y >= scrollY) return;
+  scrollTo({ top: y, behavior: 'instant' });
+  window.lenis?.scrollTo(y, { immediate: true, force: true });
+}
+
+// 點中間那張：其他牌和文字往外散開，這張放大飛到逐頁中間，接著逐頁的文字從外面移進來
+let flying = false;
+const outward = (el, cx, cy) => {
+  const b = el.getBoundingClientRect(), dx = b.left + b.width / 2 - cx, dy = b.top + b.height / 2 - cy, l = Math.hypot(dx, dy) || 1;
+  return `${dx / l * innerWidth * 0.6}px ${dy / l * innerHeight * 0.6}px`;
+};
+// 複製一張牌來飛，蓋在指定的位置上
+function flyCard(k, pos) {
+  const f = ocs[k].cloneNode(true);
+  f.className = ocs[k].classList.contains('glass') ? 'fly glass' : 'fly'; f.removeAttribute('tabindex');
+  f.style.cssText = '';
+  Object.assign(f.style, pos);
+  document.body.append(f);
+  return f;
+}
+// 把牌飛到 to 的位置：元素先放到終點的大小，再用 transform 從起點縮放過去，不用每幀重新排版和重畫大圖
+function flyTo(f, to, opts) {
+  const a = f.getBoundingClientRect();
+  Object.assign(f.style, { left: to.left + 'px', top: to.top + 'px', width: to.width + 'px', height: to.height + 'px' });
+  return f.animate([
+    { transform: `translate(${a.left - to.left}px, ${a.top - to.top}px) scale(${a.width / to.width}, ${a.height / to.height})` },
+    { transform: 'none' }
+  ], opts);
+}
+// 飛行時背景先停，資源讓給轉場
+const setFlying = v => { flying = v; document.documentElement.classList.toggle('busy', v); };
+function enterDial(k) {
+  if (flying) return;
+  const card0 = ocs[k];
+  if (reduce) { setView('dial'); goTo(k, true); cur = target = k; drawn = null; return; }
+  setFlying(true);
+  const r = card0.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  const ease = 'cubic-bezier(.7, 0, .3, 1)';
+  const fly = flyCard(k, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
+  card0.style.visibility = 'hidden';
+  const moved = [];
+  ocs.forEach(el => {
+    if (el === card0 || el.style.display === 'none') return;
+    moved.push(el.animate([{}, { translate: outward(el, cx, cy), opacity: 0 }], { duration: 420, easing: ease, fill: 'forwards' }));
+  });
+  moved.push(fcap.animate([{}, { translate: '0 60px', opacity: 0 }], { duration: 340, easing: ease, fill: 'forwards' }));
+  [document.querySelector('.whead .wrap'), wbar].forEach(el => moved.push(el.animate([{}, { translate: '0 -120px', opacity: 0 }], { duration: 380, easing: ease, fill: 'forwards' })));
+
+  setTimeout(() => {
+    setView('dial'); goTo(k, true); cur = target = k; drawn = null;
+    moved.forEach(a => a.cancel()); card0.style.visibility = '';
+    const card = cards[k];
+    card.style.visibility = 'hidden';
+    stage.classList.remove('enter'); void stage.offsetWidth; stage.classList.add('enter');
+    requestAnimationFrame(() => {
+      // 終點：逐頁中間那張卡（用中心點和寬高算）
+      const sr = stage.getBoundingClientRect(), w = parseFloat(card.style.width), h = parseFloat(card.style.height);
+      flyTo(fly, { left: sr.left + g.cx - w / 2, top: sr.top + g.cy - h / 2, width: w, height: h }, { duration: 700, easing: 'cubic-bezier(.2, .8, .2, 1)', fill: 'forwards' }).finished.then(() => {
+        card.style.visibility = '';
+        fly.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' }).finished.then(() => fly.remove());
+        setFlying(false);
+      });
+    });
+    setTimeout(() => stage.classList.remove('enter'), 1300);
+  }, 380);
+}
+
+// 從逐頁回總覽：反過來做。逐頁的文字往外移出，卡片飛回牌組中間，其他牌從外面移回來。
+// change 是要換到別的分類時才有：飛回去的落點改成新分類的第一張，圖片一路漸變過去
+let exitChange = null;
+function exitDial(change) {
+  if (flying) { if (change) exitChange = change; return; }
+  exitChange = change;
+  const k = active, card = cards[k];
+  const toOver = () => { setView('over'); const c = exitChange; exitChange = null; if (c) { c(); overTo(fan.hidden ? -1 : 0); } return c; };
+  if (reduce || !card) return void toOver();
+  setFlying(true);
+  const sr = stage.getBoundingClientRect(), w = parseFloat(card.style.width), h = parseFloat(card.style.height);
+  const fly = flyCard(k, { left: sr.left + g.cx - w / 2 + 'px', top: sr.top + g.cy - h / 2 + 'px', width: w + 'px', height: h + 'px' });
+  card.style.visibility = 'hidden';
+  stage.classList.remove('enter'); stage.classList.add('leave');
+
+  setTimeout(() => {
+    const changed = toOver();
+    stage.classList.remove('leave'); card.style.visibility = '';
+    const inEase = 'cubic-bezier(.2, .8, .2, 1)';
+    // 新分類沒有牌（網頁遊戲）：卡片原地淡掉，內容直接進來
+    if (changed && fan.hidden) {
+      bento.animate([{ opacity: 0, translate: '0 40px' }, { opacity: 1, translate: '0 0' }], { duration: 700, easing: inEase });
+      [document.querySelector('.whead .wrap'), wbar].forEach(el => el.animate([{ translate: '0 -120px', opacity: 0 }, { translate: '0 0', opacity: 1 }], { duration: 700, easing: inEase, fill: 'backwards' }));
+      fly.animate([{ opacity: 1 }, { opacity: 0, scale: .9 }], { duration: 350, fill: 'forwards' }).finished.then(() => { fly.remove(); setFlying(false); });
+      return;
+    }
+    const to = changed ? 0 : k, c = ocs[to];
+    c.style.visibility = 'hidden';
+    if (changed) {
+      fly.querySelector('.play')?.remove();
+      const next = Object.assign(document.createElement('img'), { src: pic(items[order[to]].thumb), alt: '' });
+      fly.append(next);
+      next.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 620, easing: 'ease-in-out', fill: 'backwards' });
+    }
+    requestAnimationFrame(() => {
+      const r = c.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      ocs.forEach(el => {
+        if (el === c || el.style.display === 'none') return;
+        el.animate([{ translate: outward(el, cx, cy), opacity: 0 }, { translate: '0 0', opacity: el.style.opacity }], { duration: 700, delay: 150, easing: inEase, fill: 'backwards' });
+      });
+      fcap.animate([{ translate: '0 60px', opacity: 0 }, { translate: '0 0', opacity: 1 }], { duration: 700, delay: 200, easing: inEase, fill: 'backwards' });
+      [document.querySelector('.whead .wrap'), wbar].forEach(el => el.animate([{ translate: '0 -120px', opacity: 0 }, { translate: '0 0', opacity: 1 }], { duration: 700, delay: 150, easing: inEase, fill: 'backwards' }));
+      flyTo(fly, r, { duration: 700, easing: inEase, fill: 'forwards' }).finished.then(() => {
+        c.style.visibility = '';
+        fly.remove();
+        setFlying(false);
+      });
+    });
+  }, 380);
+}
+
+/* ───────── 燈箱 ───────── */
+const box = document.getElementById('box'), media = document.getElementById('media');
+let lastFocus;
+function open(i, list) {
+  shown = list ? list : view === 'dial' ? order.slice() : [...document.querySelectorAll('.item:not([hidden])')].map(el => +el.dataset.i);
+  at = shown.indexOf(i);
+  lastFocus = document.activeElement;
+  show();
+  box.querySelector('.x').focus();
+  window.lenis?.stop();
+}
+function show() {
+  const it = items[shown[at]];
+  media.innerHTML = it.type === 'video'
+    ? `<video src="${it.src}" poster="${it.poster}" controls ${lite ? 'preload="none"' : 'autoplay'} playsinline></video>`
+    : `<img${it.alpha ? ' class="glass"' : ''} src="${lite ? it.thumb : it.src}" alt="${it.title}">`;
+  document.getElementById('boxcap').textContent = `${it.title}${SEP}${CATS[it.cat]}　${at + 1} / ${shown.length}`;
+  box.classList.add('on');
+}
+function step(d) { at = (at + d + shown.length) % shown.length; show(); }
+function close() {
+  box.classList.remove('on'); media.innerHTML = '';
+  window.lenis?.start();
+  // 在燈箱裡翻到哪一件，關掉後就停在那一件
+  if (view === 'dial') goTo(order.indexOf(shown[at]));
+  lastFocus?.focus?.({ preventScroll: true });
+}
+
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-f]'); if (f) return setFilter(f.dataset.f);
+  if (e.target.closest('.dback')) return exitDial();
+  const v = e.target.closest('[data-view]'); if (v) return setView(v.dataset.view);
+  const sh = e.target.closest('[data-shot]'); if (sh) return open(shotIdx[+sh.dataset.shot], shotIdx);
+  const o = e.target.closest('.fcard');
+  if (o) { if (fdragged) { fdragged = false; return; } return +o.dataset.o === fon ? enterDial(fon) : fanTo(+o.dataset.o); }
+  const n = e.target.closest('.card'); if (n) return +n.dataset.k === active ? open(order[active]) : goTo(+n.dataset.k);
+  const r = e.target.closest('[data-row]'); if (r) return goTo(+r.dataset.row);
+  const it = e.target.closest('.item'); if (it) return open(+it.dataset.i);
+  const a = e.target.closest('[data-act]');
+  if (a) return a.dataset.act === 'close' ? close() : step(a.dataset.act === 'next' ? 1 : -1);
+  if (e.target === box) close();
+});
+document.addEventListener('keydown', e => {
+  if (box.classList.contains('on')) {
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowRight') step(1);
+    if (e.key === 'ArrowLeft') step(-1);
+    if (e.key === 'Tab') {   // 焦點留在燈箱裡
+      const f = [...box.querySelectorAll('button, video')], i = f.indexOf(document.activeElement);
+      e.preventDefault(); f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length].focus();
+    }
+    return;
+  }
+  if (view === 'over' && !fan.hidden && ocs.length && !e.target.closest('input, textarea')) {
+    const d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+    const r = fan.getBoundingClientRect();
+    if (d && r.top < innerHeight / 2 && r.bottom > innerHeight / 2) { e.preventDefault(); fanTo(fon + d); }
+    return;
+  }
+  if (view !== 'dial' || e.target.closest('input, textarea')) return;
+  const r = dial.getBoundingClientRect();
+  if (r.top > innerHeight / 2 || r.bottom < innerHeight / 2) return;
+  const d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+  if (d) { e.preventDefault(); goTo(Math.round(target) + d); }
+  // 不擋掉的話，同一個 Enter 會接著按到燈箱裡剛拿到焦點的「關閉」
+  if (e.key === 'Enter' && !e.target.closest('button, a')) { e.preventDefault(); open(order[active]); }
+});
+
+// 手機：點作品以外的地方換下一張，最後一張的下一張回到第一張；點中間那張還是看作品
+tapNext(e => {
+  if (fdragged) { fdragged = false; return; }
+  if (box.classList.contains('on') || flying || froll || e.target.closest('.card, [data-row], .wbar, .dtabs')) return;
+  if (view === 'over' && !fan.hidden && ocs.length) fanTo(fon + 1);
+  if (view === 'dial' && order.length) {
+    const k = Math.round(target) + 1;
+    k < order.length ? goTo(k) : goTo(0, true);
+  }
+});
+</script>
+</body>
+</html>
